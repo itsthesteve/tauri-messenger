@@ -1,0 +1,26 @@
+<aim-xp-window>
+  <aim-xp-title-bar
+    windowTitle="[CurrentUser]: [Recipient] - AIM"
+  ></aim-xp-title-bar>
+  <div class="grid grid-rows-[auto_1fr_auto] h-full">
+    <div class="grid grid-cols-[1fr]">
+      <cdk-virtual-scroll-viewport
+        autosize
+        minBufferPx="12"
+        maxBufferPx="5000"
+        id="cdk-viewport"
+        class="bg-white border-2 border-slate-800 text-lg"
+      >
+        <div
+          *cdkVirtualFor="let item of items$ | async; trackBy: trackFn"
+          class="chat-entry px-2"
+          [class.isMine]="item.isMine"
+        >
+          <strong>{{item.user}}: </strong> <span>{{item.text}}</span>
+        </div>
+      </cdk-virtual-scroll-viewport>
+    </div>
+    <!-- <aim-chat-form #chatForm></aim-chat-form> -->
+    <!-- <aim-chat-footer-buttons></aim-chat-footer-buttons> -->
+  </div>
+</aim-xp-window>
