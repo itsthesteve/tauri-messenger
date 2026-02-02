@@ -4,11 +4,16 @@ import {
   ScrollingModule,
 } from "@angular/cdk/scrolling";
 import { AsyncPipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, viewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  viewChild,
+} from "@angular/core";
 import { BehaviorSubject, interval } from "rxjs";
 import { XpTitleBar, XpWindow } from "../../components";
+import { ChatForm } from "../../components/chat-form/chat-form";
 import { randLipsum } from "../../util";
-// import { ChatFormComponent } from "../../chat-form/chat-form";
 
 @Component({
   selector: "aim-chat-window",
@@ -18,13 +23,13 @@ import { randLipsum } from "../../util";
     XpWindow,
     XpTitleBar,
     AsyncPipe,
-    // ChatFormComponent,
+    ChatForm,
   ],
   templateUrl: "./chat.html",
   styleUrl: "./chat.css",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChatWindow {
+export class ChatWindow implements AfterViewInit {
   private viewport = viewChild(CdkVirtualScrollViewport);
 
   itemsSrc$ = new BehaviorSubject<any[]>([]);
@@ -34,7 +39,7 @@ export class ChatWindow {
     return item.id;
   }
 
-  constructor() {
+  ngAfterViewInit() {
     // Uncomment to stream fake messages
     // this.simulateMessages();
   }
