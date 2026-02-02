@@ -8,5 +8,5 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class XpStatusBar {
-  showTopBorder = input<boolean>(true);
+  hideTopBorder = input<boolean>(true);
 }
