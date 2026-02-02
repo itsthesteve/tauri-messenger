@@ -6,7 +6,7 @@ import { WindowService } from "../../services/window/window-service";
   imports: [],
   templateUrl: "./xp-window.html",
   host: {
-    class: "window grid min-h-full",
+    class: "window grid min-h-full min-w-full",
   },
 })
 export class XpWindow {

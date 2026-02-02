@@ -11,6 +11,9 @@ const CORE_WINDOW_OPTIONS: Partial<WindowOptions> = {
   decorations: false,
 };
 
+/**
+ * Helper class to open new Tauri windows.
+ */
 export class WindowBuilder {
   constructor(
     private tauriLabel: string,

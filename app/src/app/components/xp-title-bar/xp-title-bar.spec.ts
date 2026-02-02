@@ -24,6 +24,7 @@ describe("XpTitleBar", () => {
   beforeEach(async () => {
     const windowSpy: Mocked<WindowService> = {
       viewState: "",
+      close: vi.fn(),
       minimize: vi.fn(),
       maximize: vi.fn(),
       restore: vi.fn(),
