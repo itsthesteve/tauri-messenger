@@ -1,23 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { XpWindow } from './xp-window';
+import { XpWindow } from "./xp-window";
+import { WindowService } from "../../services/window/window-service";
 
-describe('XpWindow', () => {
+describe("XpWindow", () => {
   let component: XpWindow;
   let fixture: ComponentFixture<XpWindow>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [XpWindow]
-    })
-    .compileComponents();
+      imports: [XpWindow],
+      providers: [WindowService],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(XpWindow);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });
