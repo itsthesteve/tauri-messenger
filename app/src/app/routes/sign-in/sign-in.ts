@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { AfterViewInit, Component, isDevMode } from "@angular/core";
 import {
   FormControl,
   FormGroup,
@@ -14,6 +14,7 @@ import {
   XpWindow,
 } from "../../components";
 import { SignInState } from "./types";
+import { WindowBuilder } from "../../window-builder";
 
 @Component({
   selector: "aim-sign-in",
@@ -31,7 +32,12 @@ import { SignInState } from "./types";
     class: "contents",
   },
 })
-export class SignIn {
+export class SignIn implements AfterViewInit {
+  private chatWindow = new WindowBuilder("debugViewer", "/debug", {
+    width: 500,
+    height: 300,
+  });
+
   signInState = signalState<SignInState>({
     profiles: [],
     selectedProfile: null,
@@ -53,4 +59,18 @@ export class SignIn {
     autoLogin: new FormControl(true),
     useDialup: new FormControl(true),
   });
+
+  ngAfterViewInit() {}
+
+  showDebug() {
+    if (!isDevMode())
+      return console.warn("Cannot open debug outside of dev mode");
+
+    this.chatWindow
+      .build()
+      .then((window) => {
+        window.show();
+      })
+      .catch(console.warn);
+  }
 }

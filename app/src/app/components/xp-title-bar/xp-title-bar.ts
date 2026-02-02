@@ -11,15 +11,12 @@ export class XpTitleBar {
   windowTitle = input<string>("AIM");
   minimize = input<boolean>(true);
   maximize = input<boolean>(false);
-  help = input<boolean>(false);
+  showHelp = input<boolean>(false);
 
   close = output();
+  help = output();
 
   protected windowService = inject(WindowService);
-
-  showHelp() {
-    console.log("Show help TODO");
-  }
 
   protected onClose() {
     this.close.emit();
