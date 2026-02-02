@@ -9,6 +9,7 @@ import { signalState } from "@ngrx/signals";
 import { XpTitleBar } from "../../components/xp-title-bar/xp-title-bar";
 import { XpWindow } from "../../components/xp-window/xp-window";
 import { SquareHero } from "../../components/square-hero/square-hero";
+import { XpStatusBar } from "../../components/xp-status-bar/xp-status-bar";
 
 type FormError = {
   key: string;
@@ -23,7 +24,7 @@ type SignInState = {
 
 @Component({
   selector: "aim-sign-in",
-  imports: [XpWindow, XpTitleBar, ReactiveFormsModule, SquareHero],
+  imports: [XpWindow, XpTitleBar, XpStatusBar, ReactiveFormsModule, SquareHero],
   templateUrl: "./sign-in.html",
   styleUrl: "./sign-in.css",
   host: {
