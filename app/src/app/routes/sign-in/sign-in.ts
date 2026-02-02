@@ -6,10 +6,11 @@ import {
   Validators,
 } from "@angular/forms";
 import { signalState } from "@ngrx/signals";
-import { XpTitleBar } from "../../components/xp-title-bar/xp-title-bar";
-import { XpWindow } from "../../components/xp-window/xp-window";
+import { AimIconButton } from "../../components/icon-button/icon-button";
 import { SquareHero } from "../../components/square-hero/square-hero";
 import { XpStatusBar } from "../../components/xp-status-bar/xp-status-bar";
+import { XpTitleBar } from "../../components/xp-title-bar/xp-title-bar";
+import { XpWindow } from "../../components/xp-window/xp-window";
 
 type FormError = {
   key: string;
@@ -24,7 +25,14 @@ type SignInState = {
 
 @Component({
   selector: "aim-sign-in",
-  imports: [XpWindow, XpTitleBar, XpStatusBar, ReactiveFormsModule, SquareHero],
+  imports: [
+    XpWindow,
+    XpTitleBar,
+    XpStatusBar,
+    AimIconButton,
+    ReactiveFormsModule,
+    SquareHero,
+  ],
   templateUrl: "./sign-in.html",
   styleUrl: "./sign-in.css",
   host: {
