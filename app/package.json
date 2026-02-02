@@ -3,30 +3,47 @@
   "version": "0.1.0",
   "scripts": {
     "ng": "ng",
+    "dev": "npm run tauri dev",
     "start": "ng serve",
-    "build": "ng build",
+    "build:app": "ng build",
+    "build": "npm run tauri build",
+    "build:debug": "npm run tauri build -- --debug",
     "watch": "ng build --watch --configuration development",
     "tauri": "tauri"
   },
   "private": true,
   "dependencies": {
+    "@angular/cdk": "^20.2.14",
+    "@angular/cdk-experimental": "^20.2.14",
     "@angular/common": "^20.1.4",
     "@angular/compiler": "^20.1.4",
     "@angular/core": "^20.1.4",
     "@angular/forms": "^20.1.4",
     "@angular/platform-browser": "^20.1.4",
     "@angular/router": "^20.1.4",
-    "rxjs": "~7.8.2",
-    "tslib": "^2.8.1",
-    "zone.js": "~0.15.1",
+    "@tailwindcss/postcss": "^4.1.18",
     "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2"
+    "@tauri-apps/plugin-dialog": "^2.6.0",
+    "@tauri-apps/plugin-http": "^2.5.6",
+    "@tauri-apps/plugin-opener": "^2.5.3",
+    "@tauri-apps/plugin-process": "^2.3.1",
+    "@tauri-apps/plugin-sql": "^2.3.1",
+    "@tauri-apps/plugin-websocket": "^2.4.2",
+    "postcss": "^8.5.6",
+    "quill": "^2.0.3",
+    "rxjs": "~7.8.2",
+    "tailwindcss": "^4.1.18",
+    "tslib": "^2.8.1",
+    "zod": "^4.3.5",
+    "zone.js": "~0.15.1"
   },
   "devDependencies": {
     "@angular/build": "^20.1.4",
     "@angular/cli": "^20.1.4",
     "@angular/compiler-cli": "^20.1.4",
     "@tauri-apps/cli": "^2",
+    "@types/jasmine": "^5.1.15",
+    "@types/mocha": "^10.0.10",
     "typescript": "~5.8.3"
   }
 }

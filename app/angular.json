@@ -15,7 +15,7 @@
       },
       "root": "",
       "sourceRoot": "src",
-      "prefix": "app",
+      "prefix": "aim",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
@@ -24,6 +24,13 @@
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "optimization": {
+              "styles": {
+                "minify": true,
+                "inlineCritical": false
+              },
+              "fonts": false
+            },
             "assets": [
               {
                 "glob": "**/*",
@@ -35,6 +42,10 @@
           },
           "configurations": {
             "production": {
+              "outputPath": {
+                "base": "./dist",
+                "browser": ""
+              },
               "budgets": [
                 {
                   "type": "initial",
@@ -50,6 +61,10 @@
               "outputHashing": "all"
             },
             "development": {
+              "outputPath": {
+                "base": "./dist",
+                "browser": ""
+              },
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
@@ -60,7 +75,7 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "port": 1420
+            "port": 4200
           },
           "configurations": {
             "production": {

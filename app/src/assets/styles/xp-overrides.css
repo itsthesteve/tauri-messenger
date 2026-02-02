@@ -1,0 +1,96 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: 1rem;
+}
+
+.window fieldset {
+  padding: 8px;
+  margin: 0;
+  background: inherit;
+  border: 0;
+  border-radius: 0;
+}
+
+.title-bar {
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  box-sizing: content-box;
+  /* Unfortunately required to remove the white bunny ears */
+  border-radius: 0;
+}
+
+details > summary {
+  list-style: none;
+}
+
+details > summary::marker, /* Latest Chrome, Edge, Firefox */
+details > summary::-webkit-details-marker /* Safari */ {
+  display: none;
+}
+
+ul.tree-view li {
+  cursor: pointer;
+}
+
+/* Change to an arrow */
+ul.tree-view details > summary span {
+  text-indent: 0.25rem;
+  display: inline-block;
+  font-weight: bold;
+}
+
+/* Remove dotted lines in tree view */
+ul.tree-view ul > li:before {
+  all: unset;
+}
+
+.hotkey-trigger {
+  text-decoration: underline;
+}
+
+ul.tree-view ul {
+  border-left: 0;
+  padding-left: 0.5rem;
+}
+
+ul.tree-view details > summary:before {
+  border: 0;
+  content: "▸";
+  transform: translate(2px, 2px);
+  transform-origin: center center;
+  scale: 1.25;
+}
+
+ul.tree-view details[open] > summary:before {
+  rotate: 90deg;
+  content: "▸";
+  transform: translate(2px, -3px);
+}
+
+ul.tree-view {
+  border: 0;
+}
+
+.boxed-link::before {
+  text-align: center;
+  display: block;
+  float: left;
+  content: "+";
+  border: 1px solid grey;
+  width: 8px;
+  height: 9px;
+  line-height: 9px;
+  margin-right: 5px;
+  padding-left: 1px;
+  background-color: #fff;
+}
+
+input:is([type="password"], [type="text"]):is([disabled]) {
+  opacity: 0.75;
+  background: #ddd;
+  pointer-events: none;
+}

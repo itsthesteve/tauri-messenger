@@ -1,1 +1,44 @@
-/* You can add global styles to this file, and also import other style files */
+@layer base, overrides;
+@layer base {
+  @import "tailwindcss";
+  @import "quill/dist/quill.core.css";
+}
+
+@layer overrides {
+  @import "./assets/styles/ql-overrides.css";
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-family:
+    Pixelated MS Sans Serif,
+    Arial;
+  overflow: hidden;
+}
+
+:not([data-selectable]),
+:not(.ql-editor) {
+  user-select: none;
+}
+
+/* Prevent the empty router-outlet from screwing up grid styles */
+router-outlet {
+  display: contents;
+}
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

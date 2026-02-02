@@ -2,23 +2,33 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "aim",
   "version": "0.1.0",
-  "identifier": "dev.its.apps.aim",
+  "identifier": "dev.itsthesteve.apps.aim",
   "build": {
     "beforeDevCommand": "npm run start",
-    "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build",
-    "frontendDist": "../dist/aim/browser"
+    "devUrl": "http://localhost:4200",
+    "frontendDist": "../dist",
+    "beforeBuildCommand": "npm run build:app"
   },
   "app": {
     "windows": [
       {
-        "title": "aim",
-        "width": 800,
-        "height": 600
+        "label": "main",
+        "title": "main",
+        "width": 220,
+        "height": 400,
+        "decorations": false,
+        "acceptFirstMouse": true,
+        "backgroundColor": "#ddd"
       }
     ],
     "security": {
-      "csp": null
+      "csp": null,
+      "pattern": {
+        "use": "isolation",
+        "options": {
+          "dir": "../dist-isolation"
+        }
+      }
     }
   },
   "bundle": {
