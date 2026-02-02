@@ -1,5 +1,6 @@
-import { Component, inject } from "@angular/core";
-import { XpWindow, XpTitleBar } from "../../components";
+import { Component, inject, OnInit } from "@angular/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { XpTitleBar, XpWindow } from "../../components";
 import { WindowService } from "../../services/window/window-service";
 
 @Component({
@@ -11,6 +12,11 @@ import { WindowService } from "../../services/window/window-service";
     class: "contents",
   },
 })
-export class Debug {
+export class Debug implements OnInit {
   protected windowService = inject(WindowService);
+
+  ngOnInit(): void {
+    // TODO: Figure out a good way to apply this to all windows
+    getCurrentWindow().show().catch(console.warn);
+  }
 }

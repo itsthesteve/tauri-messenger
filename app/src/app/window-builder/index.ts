@@ -5,7 +5,7 @@ import { Window as TauriWindow, WindowOptions } from "@tauri-apps/api/window";
 type AppWindowOptions = Partial<WindowOptions> &
   Required<{ width: number; height: number }>;
 
-const CORE_WINDOW_OPTIONS: Partial<WindowOptions> = {
+const CORE_WINDOW_OPTIONS: Partial<AppWindowOptions> = {
   /* The component sets visibility when ready to render to prevent flashbang */
   visible: false,
   /* No default system window trim */

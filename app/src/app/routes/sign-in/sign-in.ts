@@ -32,7 +32,7 @@ import { WindowBuilder } from "../../window-builder";
     class: "contents",
   },
 })
-export class SignIn implements AfterViewInit {
+export class SignIn {
   private chatWindow = new WindowBuilder("debugViewer", "/debug", {
     width: 500,
     height: 300,
@@ -60,17 +60,10 @@ export class SignIn implements AfterViewInit {
     useDialup: new FormControl(true),
   });
 
-  ngAfterViewInit() {}
-
   showDebug() {
     if (!isDevMode())
       return console.warn("Cannot open debug outside of dev mode");
 
-    this.chatWindow
-      .build()
-      .then((window) => {
-        window.show();
-      })
-      .catch(console.warn);
+    this.chatWindow.build().catch(console.warn);
   }
 }
