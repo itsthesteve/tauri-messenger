@@ -1,0 +1,62 @@
+<aim-xp-window>
+  <aim-xp-title-bar
+    [help]="true"
+    [minimize]="false"
+    windowTitle="AIM - Sign on"
+  ></aim-xp-title-bar>
+  <form [formGroup]="form">
+    <div class="mb-1">
+      <label
+        for="screenName"
+        class="grid! grid-cols-[1fr_2fr] items-center! w-full"
+      >
+        <span>Screen name</span>
+        <input disabled type="text" value="[No screen names]" />
+      </label>
+    </div>
+
+    <div>
+      <label
+        for="password"
+        class="grid! grid-cols-[1fr_2fr] items-center! w-full"
+      >
+        <span>Password</span>
+        <input
+          autocomplete="no"
+          type="password"
+          id="password"
+          formControlName="password"
+          maxlength="128"
+        />
+      </label>
+    </div>
+
+    <footer class="flex flex-wrap mb-6">
+      <div class="basis-1/2 py-2">
+        <input
+          type="checkbox"
+          id="savePassword"
+          formControlName="savePassword"
+        />
+        <label for="savePassword"> Save password </label>
+      </div>
+      <div class="basis-1/2 py-2 text-right">
+        <input type="checkbox" id="autoLogin" formControlName="autoLogin" />
+        <label for="autoLogin"> Auto-login </label>
+      </div>
+      <div class="basis-1/2">
+        <input type="checkbox" id="useDialup" formControlName="useDialup" />
+        <label for="useDialup"> Use dialup </label>
+      </div>
+      <div class="basis-1/2 text-right">
+        <label for="useDialup">
+          <a routerLink="/get-screen-name">Get a screen name</a>
+        </label>
+      </div>
+    </footer>
+  </form>
+
+  <div class="flex gap-4">Sign on</div>
+
+  <small class="text-center">Version 0.0.1</small>
+</aim-xp-window>

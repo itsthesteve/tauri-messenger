@@ -7,6 +7,9 @@ import { invoke } from "@tauri-apps/api/core";
   imports: [RouterOutlet],
   templateUrl: "./app.component.html",
   styleUrl: "./app.component.css",
+  host: {
+    class: "contents",
+  },
 })
 export class AppComponent {
   greetingMessage = "";
