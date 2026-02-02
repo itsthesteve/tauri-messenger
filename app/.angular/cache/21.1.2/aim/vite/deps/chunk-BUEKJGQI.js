@@ -50,14 +50,12 @@ import {
   TESTABILITY_GETTER,
   TemplateRef,
   Testability,
-  TestabilityRegistry,
   TracingService,
   TransferState,
   Version,
   ViewContainerRef,
   ViewEncapsulation,
   XSS_SECURITY_URL,
-  ZONELESS_ENABLED,
   _global,
   _sanitizeHtml,
   _sanitizeUrl,
@@ -93,6 +91,7 @@ import {
   of,
   performanceMarkFeature,
   platformCore,
+  provideStabilityDebugging,
   runInInjectionContext,
   setClassMetadata,
   setDocument,
@@ -116,7 +115,7 @@ import {
   ɵɵinject,
   ɵɵinjectAttribute,
   ɵɵstyleProp
-} from "./chunk-AEMIX5HZ.js";
+} from "./chunk-B5AU7MPL.js";
 import {
   __async,
   __objRest,
@@ -124,7 +123,7 @@ import {
   __spreadValues
 } from "./chunk-WDMUDEB6.js";
 
-// node_modules/@angular/common/fesm2022/location.mjs
+// node_modules/@angular/common/fesm2022/_platform_location-chunk.mjs
 var _DOM = null;
 function getDOM() {
   return _DOM;
@@ -156,7 +155,7 @@ var PlatformLocation = class _PlatformLocation {
     }]
   }], null, null);
 })();
-var LOCATION_INITIALIZED = new InjectionToken(ngDevMode ? "Location Initialized" : "");
+var LOCATION_INITIALIZED = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "Location Initialized" : "");
 var BrowserPlatformLocation = class _BrowserPlatformLocation extends PlatformLocation {
   _location;
   _history;
@@ -239,6 +238,8 @@ var BrowserPlatformLocation = class _BrowserPlatformLocation extends PlatformLoc
     }]
   }], () => [], null);
 })();
+
+// node_modules/@angular/common/fesm2022/_location-chunk.mjs
 function joinWithSlash(start, end) {
   if (!start) return end;
   if (!end) return start;
@@ -276,7 +277,7 @@ var LocationStrategy = class _LocationStrategy {
     }]
   }], null, null);
 })();
-var APP_BASE_HREF = new InjectionToken(ngDevMode ? "appBaseHref" : "");
+var APP_BASE_HREF = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "appBaseHref" : "");
 var PathLocationStrategy = class _PathLocationStrategy extends LocationStrategy {
   _platformLocation;
   _baseHref;
@@ -286,7 +287,6 @@ var PathLocationStrategy = class _PathLocationStrategy extends LocationStrategy 
     this._platformLocation = _platformLocation;
     this._baseHref = href ?? this._platformLocation.getBaseHrefFromDOM() ?? inject(DOCUMENT).location?.origin ?? "";
   }
-  /** @docs-private */
   ngOnDestroy() {
     while (this._removeListenerFns.length) {
       this._removeListenerFns.pop()();
@@ -354,15 +354,10 @@ var PathLocationStrategy = class _PathLocationStrategy extends LocationStrategy 
   }], null);
 })();
 var Location = class _Location {
-  /** @internal */
   _subject = new Subject();
-  /** @internal */
   _basePath;
-  /** @internal */
   _locationStrategy;
-  /** @internal */
   _urlChangeListeners = [];
-  /** @internal */
   _urlChangeSubscription = null;
   constructor(locationStrategy) {
     this._locationStrategy = locationStrategy;
@@ -377,128 +372,45 @@ var Location = class _Location {
       });
     });
   }
-  /** @docs-private */
   ngOnDestroy() {
     this._urlChangeSubscription?.unsubscribe();
     this._urlChangeListeners = [];
   }
-  /**
-   * Normalizes the URL path for this location.
-   *
-   * @param includeHash True to include an anchor fragment in the path.
-   *
-   * @returns The normalized URL path.
-   */
-  // TODO: vsavkin. Remove the boolean flag and always include hash once the deprecated router is
-  // removed.
   path(includeHash = false) {
     return this.normalize(this._locationStrategy.path(includeHash));
   }
-  /**
-   * Reports the current state of the location history.
-   * @returns The current value of the `history.state` object.
-   */
   getState() {
     return this._locationStrategy.getState();
   }
-  /**
-   * Normalizes the given path and compares to the current normalized path.
-   *
-   * @param path The given URL path.
-   * @param query Query parameters.
-   *
-   * @returns True if the given URL path is equal to the current normalized path, false
-   * otherwise.
-   */
   isCurrentPathEqualTo(path, query = "") {
     return this.path() == this.normalize(path + normalizeQueryParams(query));
   }
-  /**
-   * Normalizes a URL path by stripping any trailing slashes.
-   *
-   * @param url String representing a URL.
-   *
-   * @returns The normalized URL string.
-   */
   normalize(url) {
     return _Location.stripTrailingSlash(_stripBasePath(this._basePath, _stripIndexHtml(url)));
   }
-  /**
-   * Normalizes an external URL path.
-   * If the given URL doesn't begin with a leading slash (`'/'`), adds one
-   * before normalizing. Adds a hash if `HashLocationStrategy` is
-   * in use, or the `APP_BASE_HREF` if the `PathLocationStrategy` is in use.
-   *
-   * @param url String representing a URL.
-   *
-   * @returns  A normalized platform-specific URL.
-   */
   prepareExternalUrl(url) {
     if (url && url[0] !== "/") {
       url = "/" + url;
     }
     return this._locationStrategy.prepareExternalUrl(url);
   }
-  // TODO: rename this method to pushState
-  /**
-   * Changes the browser's URL to a normalized version of a given URL, and pushes a
-   * new item onto the platform's history.
-   *
-   * @param path  URL path to normalize.
-   * @param query Query parameters.
-   * @param state Location history state.
-   *
-   */
   go(path, query = "", state = null) {
     this._locationStrategy.pushState(state, "", path, query);
     this._notifyUrlChangeListeners(this.prepareExternalUrl(path + normalizeQueryParams(query)), state);
   }
-  /**
-   * Changes the browser's URL to a normalized version of the given URL, and replaces
-   * the top item on the platform's history stack.
-   *
-   * @param path  URL path to normalize.
-   * @param query Query parameters.
-   * @param state Location history state.
-   */
   replaceState(path, query = "", state = null) {
     this._locationStrategy.replaceState(state, "", path, query);
     this._notifyUrlChangeListeners(this.prepareExternalUrl(path + normalizeQueryParams(query)), state);
   }
-  /**
-   * Navigates forward in the platform's history.
-   */
   forward() {
     this._locationStrategy.forward();
   }
-  /**
-   * Navigates back in the platform's history.
-   */
   back() {
     this._locationStrategy.back();
   }
-  /**
-   * Navigate to a specific page from session history, identified by its relative position to the
-   * current page.
-   *
-   * @param relativePosition  Position of the target page in the history relative to the current
-   *     page.
-   * A negative value moves backwards, a positive value moves forwards, e.g. `location.historyGo(2)`
-   * moves forward two pages and `location.historyGo(-2)` moves back two pages. When we try to go
-   * beyond what's stored in the history session, we stay in the current page. Same behaviour occurs
-   * when `relativePosition` equals 0.
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/History_API#Moving_to_a_specific_point_in_history
-   */
   historyGo(relativePosition = 0) {
     this._locationStrategy.historyGo?.(relativePosition);
   }
-  /**
-   * Registers a URL change listener. Use to catch updates performed by the Angular
-   * framework that are not detectible through "popstate" or "hashchange" events.
-   *
-   * @param fn The change handler function, which take a URL and a location history state.
-   * @returns A function that, when executed, unregisters a URL change listener.
-   */
   onUrlChange(fn) {
     this._urlChangeListeners.push(fn);
     this._urlChangeSubscription ??= this.subscribe((v) => {
@@ -513,23 +425,9 @@ var Location = class _Location {
       }
     };
   }
-  /** @internal */
   _notifyUrlChangeListeners(url = "", state) {
     this._urlChangeListeners.forEach((fn) => fn(url, state));
   }
-  /**
-   * Subscribes to the platform's `popState` events.
-   *
-   * Note: `Location.go()` does not trigger the `popState` event in the browser. Use
-   * `Location.onUrlChange()` to subscribe to URL changes instead.
-   *
-   * @param value Event that is triggered when the state history changes.
-   * @param exception The exception to throw.
-   *
-   * @see [onpopstate](https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onpopstate)
-   *
-   * @returns Subscribed events.
-   */
   subscribe(onNext, onThrow, onReturn) {
     return this._subject.subscribe({
       next: onNext,
@@ -537,33 +435,8 @@ var Location = class _Location {
       complete: onReturn ?? void 0
     });
   }
-  /**
-   * Normalizes URL parameters by prepending with `?` if needed.
-   *
-   * @param  params String of URL parameters.
-   *
-   * @returns The normalized URL parameters string.
-   */
   static normalizeQueryParams = normalizeQueryParams;
-  /**
-   * Joins two parts of a URL with a slash if needed.
-   *
-   * @param start  URL string
-   * @param end    URL string
-   *
-   *
-   * @returns The joined URL string.
-   */
   static joinWithSlash = joinWithSlash;
-  /**
-   * Removes a trailing slash from a URL string if needed.
-   * Looks for the first occurrence of either `#`, `?`, or the end of the
-   * line as `/` characters and removes the trailing slash if one exists.
-   *
-   * @param url URL string.
-   *
-   * @returns The URL string, modified if needed.
-   */
   static stripTrailingSlash = stripTrailingSlash;
   static ɵfac = function Location_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _Location)(ɵɵinject(LocationStrategy));
@@ -579,7 +452,6 @@ var Location = class _Location {
     type: Injectable,
     args: [{
       providedIn: "root",
-      // See #23917
       useFactory: createLocation
     }]
   }], () => [{
@@ -611,7 +483,7 @@ function _stripOrigin(baseHref) {
   return baseHref;
 }
 
-// node_modules/@angular/common/fesm2022/common_module.mjs
+// node_modules/@angular/common/fesm2022/_common_module-chunk.mjs
 var HashLocationStrategy = class _HashLocationStrategy extends LocationStrategy {
   _platformLocation;
   _baseHref = "";
@@ -623,7 +495,6 @@ var HashLocationStrategy = class _HashLocationStrategy extends LocationStrategy 
       this._baseHref = _baseHref;
     }
   }
-  /** @docs-private */
   ngOnDestroy() {
     while (this._removeListenerFns.length) {
       this._removeListenerFns.pop()();
@@ -748,6 +619,7 @@ var CURRENCIES_EN = {
   "JMD": [void 0, "$"],
   "JOD": [void 0, void 0, 3],
   "JPY": ["¥", void 0, 0],
+  "KGS": [void 0, "⃀"],
   "KHR": [void 0, "៛"],
   "KMF": [void 0, "CF", 0],
   "KPW": [void 0, "₩", 0],
@@ -819,6 +691,7 @@ var CURRENCIES_EN = {
   "VUV": [void 0, void 0, 0],
   "XAF": ["FCFA", void 0, 0],
   "XCD": ["EC$", "$"],
+  "XCG": ["Cg."],
   "XOF": ["F CFA", void 0, 0],
   "XPF": ["CFPF", void 0, 0],
   "XXX": ["¤"],
@@ -864,77 +737,19 @@ var FormatWidth;
   FormatWidth2[FormatWidth2["Full"] = 3] = "Full";
 })(FormatWidth || (FormatWidth = {}));
 var NumberSymbol = {
-  /**
-   * Decimal separator.
-   * For `en-US`, the dot character.
-   * Example: 2,345`.`67
-   */
   Decimal: 0,
-  /**
-   * Grouping separator, typically for thousands.
-   * For `en-US`, the comma character.
-   * Example: 2`,`345.67
-   */
   Group: 1,
-  /**
-   * List-item separator.
-   * Example: "one, two, and three"
-   */
   List: 2,
-  /**
-   * Sign for percentage (out of 100).
-   * Example: 23.4%
-   */
   PercentSign: 3,
-  /**
-   * Sign for positive numbers.
-   * Example: +23
-   */
   PlusSign: 4,
-  /**
-   * Sign for negative numbers.
-   * Example: -23
-   */
   MinusSign: 5,
-  /**
-   * Computer notation for exponential value (n times a power of 10).
-   * Example: 1.2E3
-   */
   Exponential: 6,
-  /**
-   * Human-readable format of exponential.
-   * Example: 1.2x103
-   */
   SuperscriptingExponent: 7,
-  /**
-   * Sign for permille (out of 1000).
-   * Example: 23.4‰
-   */
   PerMille: 8,
-  /**
-   * Infinity, can be used with plus and minus.
-   * Example: ∞, +∞, -∞
-   */
   Infinity: 9,
-  /**
-   * Not a number.
-   * Example: NaN
-   */
   NaN: 10,
-  /**
-   * Symbol used between time units.
-   * Example: 10:52
-   */
   TimeSeparator: 11,
-  /**
-   * Decimal separator for currency values (fallback to `Decimal`).
-   * Example: $2,345.67
-   */
   CurrencyDecimal: 12,
-  /**
-   * Group separator for currency values (fallback to `Group`).
-   * Example: $2,345.67
-   */
   CurrencyGroup: 13
 };
 var WeekDay;
@@ -1015,10 +830,7 @@ function checkFullData(data) {
 function getLocaleExtraDayPeriodRules(locale) {
   const data = findLocaleData(locale);
   checkFullData(data);
-  const rules = data[LocaleDataIndex.ExtraData][
-    2
-    /* ɵExtraLocaleDataIndex.ExtraDayPeriodsRules */
-  ] || [];
+  const rules = data[LocaleDataIndex.ExtraData][2] || [];
   return rules.map((rule) => {
     if (typeof rule === "string") {
       return extractTime(rule);
@@ -1029,13 +841,7 @@ function getLocaleExtraDayPeriodRules(locale) {
 function getLocaleExtraDayPeriods(locale, formStyle, width) {
   const data = findLocaleData(locale);
   checkFullData(data);
-  const dayPeriodsData = [data[LocaleDataIndex.ExtraData][
-    0
-    /* ɵExtraLocaleDataIndex.ExtraDayPeriodFormats */
-  ], data[LocaleDataIndex.ExtraData][
-    1
-    /* ɵExtraLocaleDataIndex.ExtraDayPeriodStandalone */
-  ]];
+  const dayPeriodsData = [data[LocaleDataIndex.ExtraData][0], data[LocaleDataIndex.ExtraData][1]];
   const dayPeriods = getLastDefinedValue(dayPeriodsData, formStyle) || [];
   return getLastDefinedValue(dayPeriods, width) || [];
 }
@@ -1056,27 +862,18 @@ function extractTime(time) {
 }
 function getCurrencySymbol(code, format, locale = "en") {
   const currency = getLocaleCurrencies(locale)[code] || CURRENCIES_EN[code] || [];
-  const symbolNarrow = currency[
-    1
-    /* ɵCurrencyIndex.SymbolNarrow */
-  ];
+  const symbolNarrow = currency[1];
   if (format === "narrow" && typeof symbolNarrow === "string") {
     return symbolNarrow;
   }
-  return currency[
-    0
-    /* ɵCurrencyIndex.Symbol */
-  ] || code;
+  return currency[0] || code;
 }
 var DEFAULT_NB_OF_CURRENCY_DIGITS = 2;
 function getNumberOfCurrencyDigits(code) {
   let digits;
   const currency = CURRENCIES_EN[code];
   if (currency) {
-    digits = currency[
-      2
-      /* ɵCurrencyIndex.NbOfDigits */
-    ];
+    digits = currency[2];
   }
   return typeof digits === "number" ? digits : DEFAULT_NB_OF_CURRENCY_DIGITS;
 }
@@ -1374,7 +1171,6 @@ function getDateFormatter(format) {
   }
   let formatter;
   switch (format) {
-    // Era name (AD/BC)
     case "G":
     case "GG":
     case "GGG":
@@ -1386,41 +1182,30 @@ function getDateFormatter(format) {
     case "GGGGG":
       formatter = dateStrGetter(3, TranslationWidth.Narrow);
       break;
-    // 1 digit representation of the year, e.g. (AD 1 => 1, AD 199 => 199)
     case "y":
       formatter = dateGetter(0, 1, 0, false, true);
       break;
-    // 2 digit representation of the year, padded (00-99). (e.g. AD 2001 => 01, AD 2010 => 10)
     case "yy":
       formatter = dateGetter(0, 2, 0, true, true);
       break;
-    // 3 digit representation of the year, padded (000-999). (e.g. AD 2001 => 01, AD 2010 => 10)
     case "yyy":
       formatter = dateGetter(0, 3, 0, false, true);
       break;
-    // 4 digit representation of the year (e.g. AD 1 => 0001, AD 2010 => 2010)
     case "yyyy":
       formatter = dateGetter(0, 4, 0, false, true);
       break;
-    // 1 digit representation of the week-numbering year, e.g. (AD 1 => 1, AD 199 => 199)
     case "Y":
       formatter = weekNumberingYearGetter(1);
       break;
-    // 2 digit representation of the week-numbering year, padded (00-99). (e.g. AD 2001 => 01, AD
-    // 2010 => 10)
     case "YY":
       formatter = weekNumberingYearGetter(2, true);
       break;
-    // 3 digit representation of the week-numbering year, padded (000-999). (e.g. AD 1 => 001, AD
-    // 2010 => 2010)
     case "YYY":
       formatter = weekNumberingYearGetter(3);
       break;
-    // 4 digit representation of the week-numbering year (e.g. AD 1 => 0001, AD 2010 => 2010)
     case "YYYY":
       formatter = weekNumberingYearGetter(4);
       break;
-    // Month of the year (1-12), numeric
     case "M":
     case "L":
       formatter = dateGetter(1, 1, 1);
@@ -1429,7 +1214,6 @@ function getDateFormatter(format) {
     case "LL":
       formatter = dateGetter(1, 2, 1);
       break;
-    // Month of the year (January, ...), string, format
     case "MMM":
       formatter = dateStrGetter(2, TranslationWidth.Abbreviated);
       break;
@@ -1439,7 +1223,6 @@ function getDateFormatter(format) {
     case "MMMMM":
       formatter = dateStrGetter(2, TranslationWidth.Narrow);
       break;
-    // Month of the year (January, ...), string, standalone
     case "LLL":
       formatter = dateStrGetter(2, TranslationWidth.Abbreviated, FormStyle.Standalone);
       break;
@@ -1449,25 +1232,21 @@ function getDateFormatter(format) {
     case "LLLLL":
       formatter = dateStrGetter(2, TranslationWidth.Narrow, FormStyle.Standalone);
       break;
-    // Week of the year (1, ... 52)
     case "w":
       formatter = weekGetter(1);
       break;
     case "ww":
       formatter = weekGetter(2);
       break;
-    // Week of the month (1, ...)
     case "W":
       formatter = weekGetter(1, true);
       break;
-    // Day of the month (1-31)
     case "d":
       formatter = dateGetter(2, 1);
       break;
     case "dd":
       formatter = dateGetter(2, 2);
       break;
-    // Day of the Week StandAlone (1, 1, Mon, Monday, M, Mo)
     case "c":
     case "cc":
       formatter = dateGetter(7, 1);
@@ -1484,7 +1263,6 @@ function getDateFormatter(format) {
     case "cccccc":
       formatter = dateStrGetter(1, TranslationWidth.Short, FormStyle.Standalone);
       break;
-    // Day of the Week
     case "E":
     case "EE":
     case "EEE":
@@ -1499,7 +1277,6 @@ function getDateFormatter(format) {
     case "EEEEEE":
       formatter = dateStrGetter(1, TranslationWidth.Short);
       break;
-    // Generic period of the day (am-pm)
     case "a":
     case "aa":
     case "aaa":
@@ -1511,7 +1288,6 @@ function getDateFormatter(format) {
     case "aaaaa":
       formatter = dateStrGetter(0, TranslationWidth.Narrow);
       break;
-    // Extended period of the day (midnight, at night, ...), standalone
     case "b":
     case "bb":
     case "bbb":
@@ -1523,7 +1299,6 @@ function getDateFormatter(format) {
     case "bbbbb":
       formatter = dateStrGetter(0, TranslationWidth.Narrow, FormStyle.Standalone, true);
       break;
-    // Extended period of the day (midnight, night, ...), standalone
     case "B":
     case "BB":
     case "BBB":
@@ -1535,36 +1310,30 @@ function getDateFormatter(format) {
     case "BBBBB":
       formatter = dateStrGetter(0, TranslationWidth.Narrow, FormStyle.Format, true);
       break;
-    // Hour in AM/PM, (1-12)
     case "h":
       formatter = dateGetter(3, 1, -12);
       break;
     case "hh":
       formatter = dateGetter(3, 2, -12);
       break;
-    // Hour of the day (0-23)
     case "H":
       formatter = dateGetter(3, 1);
       break;
-    // Hour in day, padded (00-23)
     case "HH":
       formatter = dateGetter(3, 2);
       break;
-    // Minute of the hour (0-59)
     case "m":
       formatter = dateGetter(4, 1);
       break;
     case "mm":
       formatter = dateGetter(4, 2);
       break;
-    // Second of the minute (0-59)
     case "s":
       formatter = dateGetter(5, 1);
       break;
     case "ss":
       formatter = dateGetter(5, 2);
       break;
-    // Fractional second
     case "S":
       formatter = dateGetter(6, 1);
       break;
@@ -1574,44 +1343,26 @@ function getDateFormatter(format) {
     case "SSS":
       formatter = dateGetter(6, 3);
       break;
-    // Timezone ISO8601 short format (-0430)
     case "Z":
     case "ZZ":
     case "ZZZ":
-      formatter = timeZoneGetter(
-        0
-        /* ZoneWidth.Short */
-      );
+      formatter = timeZoneGetter(0);
       break;
-    // Timezone ISO8601 extended format (-04:30)
     case "ZZZZZ":
-      formatter = timeZoneGetter(
-        3
-        /* ZoneWidth.Extended */
-      );
+      formatter = timeZoneGetter(3);
       break;
-    // Timezone GMT short format (GMT+4)
     case "O":
     case "OO":
     case "OOO":
-    // Should be location, but fallback to format O instead because we don't have the data yet
     case "z":
     case "zz":
     case "zzz":
-      formatter = timeZoneGetter(
-        1
-        /* ZoneWidth.ShortGMT */
-      );
+      formatter = timeZoneGetter(1);
       break;
-    // Timezone GMT long format (GMT+0430)
     case "OOOO":
     case "ZZZZ":
-    // Should be location, but fallback to format O instead because we don't have the data yet
     case "zzzz":
-      formatter = timeZoneGetter(
-        2
-        /* ZoneWidth.Long */
-      );
+      formatter = timeZoneGetter(2);
       break;
     default:
       return null;
@@ -1950,15 +1701,7 @@ var NgLocalization = class _NgLocalization {
   };
   static ɵprov = ɵɵdefineInjectable({
     token: _NgLocalization,
-    factory: function NgLocalization_Factory(__ngFactoryType__) {
-      let __ngConditionalFactory__ = null;
-      if (__ngFactoryType__) {
-        __ngConditionalFactory__ = new __ngFactoryType__();
-      } else {
-        __ngConditionalFactory__ = ((locale) => new NgLocaleLocalization(locale))(ɵɵinject(LOCALE_ID));
-      }
-      return __ngConditionalFactory__;
-    },
+    factory: () => (() => new NgLocaleLocalization(inject(LOCALE_ID)))(),
     providedIn: "root"
   });
 };
@@ -1967,8 +1710,7 @@ var NgLocalization = class _NgLocalization {
     type: Injectable,
     args: [{
       providedIn: "root",
-      useFactory: (locale) => new NgLocaleLocalization(locale),
-      deps: [LOCALE_ID]
+      useFactory: () => new NgLocaleLocalization(inject(LOCALE_ID))
     }]
   }], null, null);
 })();
@@ -2046,28 +1788,6 @@ var NgClass = class _NgClass {
   set ngClass(value) {
     this.rawClass = typeof value === "string" ? value.trim().split(WS_REGEXP) : value;
   }
-  /*
-  The NgClass directive uses the custom change detection algorithm for its inputs. The custom
-  algorithm is necessary since inputs are represented as complex object or arrays that need to be
-  deeply-compared.
-     This algorithm is perf-sensitive since NgClass is used very frequently and its poor performance
-  might negatively impact runtime performance of the entire change detection cycle. The design of
-  this algorithm is making sure that:
-  - there is no unnecessary DOM manipulation (CSS classes are added / removed from the DOM only when
-  needed), even if references to bound objects change;
-  - there is no memory allocation if nothing changes (even relatively modest memory allocation
-  during the change detection cycle can result in GC pauses for some of the CD cycles).
-     The algorithm works by iterating over the set of bound classes, staring with [class] binding and
-  then going over [ngClass] binding. For each CSS class name:
-  - check if it was seen before (this information is tracked in the state map) and if its value
-  changed;
-  - mark it as "touched" - names that are not marked are not present in the latest set of binding
-  and we can remove such class name from the internal data structures;
-     After iteration over all the CSS class names we've got data structure with all the information
-  necessary to synchronize changes to the DOM - it is enough to iterate over the state map, flush
-  changes to the DOM and reset internal data structures so those are ready for the next change
-  detection cycle.
-   */
   ngDoCheck() {
     for (const klass of this.initialClasses) {
       this._updateState(klass, true);
@@ -2168,31 +1888,15 @@ var NgClass = class _NgClass {
 })();
 var NgComponentOutlet = class _NgComponentOutlet {
   _viewContainerRef;
-  // TODO(crisbeto): this should be `Type<T>`, but doing so broke a few
-  // targets in a TGP so we need to do it in a major version.
-  /** Component that should be rendered in the outlet. */
   ngComponentOutlet = null;
   ngComponentOutletInputs;
   ngComponentOutletInjector;
   ngComponentOutletEnvironmentInjector;
   ngComponentOutletContent;
   ngComponentOutletNgModule;
-  /**
-   * @deprecated This input is deprecated, use `ngComponentOutletNgModule` instead.
-   */
-  ngComponentOutletNgModuleFactory;
   _componentRef;
   _moduleRef;
-  /**
-   * A helper data structure that allows us to track inputs that were part of the
-   * ngComponentOutletInputs expression. Tracking inputs is necessary for proper removal of ones
-   * that are no longer referenced.
-   */
   _inputsUsed = /* @__PURE__ */ new Map();
-  /**
-   * Gets the instance of the currently-rendered component.
-   * Will be null if no component has been rendered.
-   */
   get componentInstance() {
     return this._componentRef?.instance ?? null;
   }
@@ -2200,12 +1904,11 @@ var NgComponentOutlet = class _NgComponentOutlet {
     this._viewContainerRef = _viewContainerRef;
   }
   _needToReCreateNgModuleInstance(changes) {
-    return changes["ngComponentOutletNgModule"] !== void 0 || changes["ngComponentOutletNgModuleFactory"] !== void 0;
+    return changes["ngComponentOutletNgModule"] !== void 0;
   }
   _needToReCreateComponentInstance(changes) {
     return changes["ngComponentOutlet"] !== void 0 || changes["ngComponentOutletContent"] !== void 0 || changes["ngComponentOutletInjector"] !== void 0 || changes["ngComponentOutletEnvironmentInjector"] !== void 0 || this._needToReCreateNgModuleInstance(changes);
   }
-  /** @docs-private */
   ngOnChanges(changes) {
     if (this._needToReCreateComponentInstance(changes)) {
       this._viewContainerRef.clear();
@@ -2217,8 +1920,6 @@ var NgComponentOutlet = class _NgComponentOutlet {
           this._moduleRef?.destroy();
           if (this.ngComponentOutletNgModule) {
             this._moduleRef = createNgModule(this.ngComponentOutletNgModule, getParentInjector(injector));
-          } else if (this.ngComponentOutletNgModuleFactory) {
-            this._moduleRef = this.ngComponentOutletNgModuleFactory.create(getParentInjector(injector));
           } else {
             this._moduleRef = void 0;
           }
@@ -2232,7 +1933,6 @@ var NgComponentOutlet = class _NgComponentOutlet {
       }
     }
   }
-  /** @docs-private */
   ngDoCheck() {
     if (this._componentRef) {
       if (this.ngComponentOutletInputs) {
@@ -2243,7 +1943,6 @@ var NgComponentOutlet = class _NgComponentOutlet {
       this._applyInputStateDiff(this._componentRef);
     }
   }
-  /** @docs-private */
   ngOnDestroy() {
     this._moduleRef?.destroy();
   }
@@ -2270,8 +1969,7 @@ var NgComponentOutlet = class _NgComponentOutlet {
       ngComponentOutletInjector: "ngComponentOutletInjector",
       ngComponentOutletEnvironmentInjector: "ngComponentOutletEnvironmentInjector",
       ngComponentOutletContent: "ngComponentOutletContent",
-      ngComponentOutletNgModule: "ngComponentOutletNgModule",
-      ngComponentOutletNgModuleFactory: "ngComponentOutletNgModuleFactory"
+      ngComponentOutletNgModule: "ngComponentOutletNgModule"
     },
     exportAs: ["ngComponentOutlet"],
     features: [ɵɵNgOnChangesFeature]
@@ -2304,9 +2002,6 @@ var NgComponentOutlet = class _NgComponentOutlet {
     }],
     ngComponentOutletNgModule: [{
       type: Input
-    }],
-    ngComponentOutletNgModuleFactory: [{
-      type: Input
     }]
   });
 })();
@@ -2325,19 +2020,15 @@ var NgForOfContext = class {
     this.index = index;
     this.count = count;
   }
-  // Indicates whether this is the first item in the collection.
   get first() {
     return this.index === 0;
   }
-  // Indicates whether this is the last item in the collection.
   get last() {
     return this.index === this.count - 1;
   }
-  // Indicates whether an index of this item in the collection is even.
   get even() {
     return this.index % 2 === 0;
   }
-  // Indicates whether an index of this item in the collection is odd.
   get odd() {
     return !this.even;
   }
@@ -2346,34 +2037,10 @@ var NgForOf = class _NgForOf {
   _viewContainer;
   _template;
   _differs;
-  /**
-   * The value of the iterable expression, which can be used as a
-   * [template input variable](guide/directives/structural-directives#shorthand).
-   * @deprecated The `ngFor` directive is deprecated. Use the `@for` block instead.
-   */
   set ngForOf(ngForOf) {
     this._ngForOf = ngForOf;
     this._ngForOfDirty = true;
   }
-  /**
-   * Specifies a custom `TrackByFunction` to compute the identity of items in an iterable.
-   *
-   * If a custom `TrackByFunction` is not provided, `NgForOf` will use the item's [object
-   * identity](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
-   * as the key.
-   *
-   * `NgForOf` uses the computed key to associate items in an iterable with DOM elements
-   * it produces for these items.
-   *
-   * A custom `TrackByFunction` is useful to provide good user experience in cases when items in an
-   * iterable rendered using `NgForOf` have a natural identifier (for example, custom ID or a
-   * primary key), and this iterable could be updated with new object instances that still
-   * represent the same underlying entity (for example, when data is re-fetched from the server,
-   * and the iterable is recreated and re-rendered, but most of the data is still the same).
-   *
-   * @see {@link TrackByFunction}
-   * @deprecated The `ngFor` directive is deprecated. Use the `@for` block instead.
-   */
   set ngForTrackBy(fn) {
     if ((typeof ngDevMode === "undefined" || ngDevMode) && fn != null && typeof fn !== "function") {
       console.warn(`trackBy must be a function, but received ${JSON.stringify(fn)}. See https://angular.dev/api/common/NgForOf#change-propagation for more information.`);
@@ -2386,28 +2053,17 @@ var NgForOf = class _NgForOf {
   _ngForOf = null;
   _ngForOfDirty = true;
   _differ = null;
-  // waiting for microsoft/typescript#43662 to allow the return type `TrackByFunction|undefined` for
-  // the getter
   _trackByFn;
   constructor(_viewContainer, _template, _differs) {
     this._viewContainer = _viewContainer;
     this._template = _template;
     this._differs = _differs;
   }
-  /**
-   * A reference to the template that is stamped out for each item in the iterable.
-   * @see [template reference variable](guide/templates/variables#template-reference-variables)
-   * @deprecated The `ngFor` directive is deprecated. Use the `@for` block instead.
-   */
   set ngForTemplate(value) {
     if (value) {
       this._template = value;
     }
   }
-  /**
-   * Applies the changes when needed.
-   * @docs-private
-   */
   ngDoCheck() {
     if (this._ngForOfDirty) {
       this._ngForOfDirty = false;
@@ -2416,7 +2072,7 @@ var NgForOf = class _NgForOf {
         if (typeof ngDevMode === "undefined" || ngDevMode) {
           try {
             this._differ = this._differs.find(value).create(this.ngForTrackBy);
-          } catch {
+          } catch (e) {
             let errorMessage = `Cannot find a differ supporting object '${value}' of type '${getTypeName(value)}'. NgFor only supports binding to Iterables, such as Arrays.`;
             if (typeof value === "object") {
               errorMessage += " Did you mean to use the keyvalue pipe?";
@@ -2458,12 +2114,6 @@ var NgForOf = class _NgForOf {
       applyViewChange(viewRef, record);
     });
   }
-  /**
-   * Asserts the correct type of the context for the template that `NgForOf` will render.
-   *
-   * The presence of this method is a signal to the Ivy template type-check compiler that the
-   * `NgForOf` structural directive renders its template with a specific context type.
-   */
   static ngTemplateContextGuard(dir, ctx) {
     return true;
   }
@@ -2521,28 +2171,16 @@ var NgIf = class _NgIf {
     this._viewContainer = _viewContainer;
     this._thenTemplateRef = templateRef;
   }
-  /**
-   * The Boolean expression to evaluate as the condition for showing a template.
-   * @deprecated Use the `@if` block instead. Intent to remove in v22
-   */
   set ngIf(condition) {
     this._context.$implicit = this._context.ngIf = condition;
     this._updateView();
   }
-  /**
-   * A template to show if the condition expression evaluates to true.
-   * @deprecated Use the `@if` block instead. Intent to remove in v22
-   */
   set ngIfThen(templateRef) {
     assertTemplate(templateRef, (typeof ngDevMode === "undefined" || ngDevMode) && "ngIfThen");
     this._thenTemplateRef = templateRef;
     this._thenViewRef = null;
     this._updateView();
   }
-  /**
-   * A template to show if the condition expression evaluates to false.
-   * @deprecated Use the `@if` block instead. Intent to remove in v22
-   */
   set ngIfElse(templateRef) {
     assertTemplate(templateRef, (typeof ngDevMode === "undefined" || ngDevMode) && "ngIfElse");
     this._elseTemplateRef = templateRef;
@@ -2568,23 +2206,8 @@ var NgIf = class _NgIf {
       }
     }
   }
-  /** @internal */
   static ngIfUseIfTypeGuard;
-  /**
-   * Assert the correct type of the expression bound to the `ngIf` input within the template.
-   *
-   * The presence of this static field is a signal to the Ivy template type check compiler that
-   * when the `NgIf` structural directive renders its template, the type of the expression bound
-   * to `ngIf` should be narrowed in some way. For `NgIf`, the binding expression itself is used to
-   * narrow its type, which allows the strictNullChecks feature of TypeScript to work with `NgIf`.
-   */
   static ngTemplateGuard_ngIf;
-  /**
-   * Asserts the correct type of the context for the template that `NgIf` will render.
-   *
-   * The presence of this method is a signal to the Ivy template type-check compiler that the
-   * `NgIf` structural directive renders its template with a specific context type.
-   */
   static ngTemplateContextGuard(dir, ctx) {
     return true;
   }
@@ -2663,22 +2286,18 @@ var NgSwitch = class _NgSwitch {
   _lastCaseCheckIndex = 0;
   _lastCasesMatched = false;
   _ngSwitch;
-  /** @deprecated Use the `@switch` block instead. Intent to remove in v22 */
   set ngSwitch(newValue) {
     this._ngSwitch = newValue;
     if (this._caseCount === 0) {
       this._updateDefaultCases(true);
     }
   }
-  /** @internal */
   _addCase() {
     return this._caseCount++;
   }
-  /** @internal */
   _addDefault(view) {
     this._defaultViews.push(view);
   }
-  /** @internal */
   _matchCase(value) {
     const matched = value === this._ngSwitch;
     this._lastCasesMatched ||= matched;
@@ -2724,10 +2343,6 @@ var NgSwitch = class _NgSwitch {
 var NgSwitchCase = class _NgSwitchCase {
   ngSwitch;
   _view;
-  /**
-   * Stores the HTML template to be selected on match.
-   * @deprecated Use the `@case` block within a `@switch` block instead. Intent to remove in v22
-   */
   ngSwitchCase;
   constructor(viewContainer, templateRef, ngSwitch) {
     this.ngSwitch = ngSwitch;
@@ -2737,10 +2352,6 @@ var NgSwitchCase = class _NgSwitchCase {
     ngSwitch._addCase();
     this._view = new SwitchView(viewContainer, templateRef);
   }
-  /**
-   * Performs case matching. For internal use only.
-   * @docs-private
-   */
   ngDoCheck() {
     this._view.enforceState(this.ngSwitch._matchCase(this.ngSwitchCase));
   }
@@ -2978,18 +2589,8 @@ var NgStyle = class _NgStyle {
 var NgTemplateOutlet = class _NgTemplateOutlet {
   _viewContainerRef;
   _viewRef = null;
-  /**
-   * A context object to attach to the {@link EmbeddedViewRef}. This should be an
-   * object, the object's keys will be available for binding by the local template `let`
-   * declarations.
-   * Using the key `$implicit` in the context object will set its value as default.
-   */
   ngTemplateOutletContext = null;
-  /**
-   * A string defining the template reference and optionally the context object for the template.
-   */
   ngTemplateOutlet = null;
-  /** Injector to be used within the embedded view. */
   ngTemplateOutletInjector = null;
   constructor(_viewContainerRef) {
     this._viewContainerRef = _viewContainerRef;
@@ -3010,19 +2611,9 @@ var NgTemplateOutlet = class _NgTemplateOutlet {
       });
     }
   }
-  /**
-   * We need to re-create existing embedded view if either is true:
-   * - the outlet changed.
-   * - the injector changed.
-   */
   _shouldRecreateView(changes) {
     return !!changes["ngTemplateOutlet"] || !!changes["ngTemplateOutletInjector"];
   }
-  /**
-   * For a given outlet instance, we create a proxy object that delegates
-   * to the user-specified context. This allows changing, or swapping out
-   * the context object completely without having to destroy/re-create the view.
-   */
   _createContextForwardProxy() {
     return new Proxy({}, {
       set: (_target, prop, newValue) => {
@@ -3090,12 +2681,7 @@ var SubscribableStrategy = class {
 };
 var PromiseStrategy = class {
   createSubscription(async, updateLatestValue, onError) {
-    async.then(
-      // Using optional chaining because we may have set it to `null`; since the promise
-      // is async, the view might be destroyed by the time the promise resolves.
-      (v) => updateLatestValue?.(v),
-      (e) => onError?.(e)
-    );
+    async.then((v) => updateLatestValue?.(v), (e) => onError?.(e));
     return {
       unsubscribe: () => {
         updateLatestValue = null;
@@ -3269,8 +2855,8 @@ var UpperCasePipe = class _UpperCasePipe {
   }], null, null);
 })();
 var DEFAULT_DATE_FORMAT = "mediumDate";
-var DATE_PIPE_DEFAULT_TIMEZONE = new InjectionToken(ngDevMode ? "DATE_PIPE_DEFAULT_TIMEZONE" : "");
-var DATE_PIPE_DEFAULT_OPTIONS = new InjectionToken(ngDevMode ? "DATE_PIPE_DEFAULT_OPTIONS" : "");
+var DATE_PIPE_DEFAULT_TIMEZONE = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "DATE_PIPE_DEFAULT_TIMEZONE" : "");
+var DATE_PIPE_DEFAULT_OPTIONS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "DATE_PIPE_DEFAULT_OPTIONS" : "");
 var DatePipe = class _DatePipe {
   locale;
   defaultTimezone;
@@ -3335,13 +2921,6 @@ var I18nPluralPipe = class _I18nPluralPipe {
   constructor(_localization) {
     this._localization = _localization;
   }
-  /**
-   * @param value the number to be formatted
-   * @param pluralMap an object that mimics the ICU format, see
-   * https://unicode-org.github.io/icu/userguide/format_parse/messages/.
-   * @param locale a `string` defining the locale to use (uses the current {@link LOCALE_ID} by
-   * default).
-   */
   transform(value, pluralMap, locale) {
     if (value == null) return "";
     if (typeof pluralMap !== "object" || pluralMap === null) {
@@ -3370,11 +2949,6 @@ var I18nPluralPipe = class _I18nPluralPipe {
   }], null);
 })();
 var I18nSelectPipe = class _I18nSelectPipe {
-  /**
-   * @param value a string to be internationalized.
-   * @param mapping an object that indicates the text that should be displayed
-   * for different values of the provided `value`.
-   */
   transform(value, mapping) {
     if (value == null) return "";
     if (typeof mapping !== "object" || typeof value !== "string") {
@@ -3406,9 +2980,6 @@ var I18nSelectPipe = class _I18nSelectPipe {
   }], null, null);
 })();
 var JsonPipe = class _JsonPipe {
-  /**
-   * @param value A value of any type to convert into a JSON-format string.
-   */
   transform(value) {
     return JSON.stringify(value, null, 2);
   }
@@ -3547,22 +3118,6 @@ var PercentPipe = class _PercentPipe {
   constructor(_locale) {
     this._locale = _locale;
   }
-  /**
-   *
-   * @param value The number to be formatted as a percentage.
-   * @param digitsInfo Decimal representation options, specified by a string
-   * in the following format:<br>
-   * <code>{minIntegerDigits}.{minFractionDigits}-{maxFractionDigits}</code>.
-   *   - `minIntegerDigits`: The minimum number of integer digits before the decimal point.
-   * Default is `1`.
-   *   - `minFractionDigits`: The minimum number of digits after the decimal point.
-   * Default is `0`.
-   *   - `maxFractionDigits`: The maximum number of digits after the decimal point.
-   * Default is `0`.
-   * @param locale A locale code for the locale format rules to use.
-   * When not supplied, uses the value of `LOCALE_ID`, which is `en-US` by default.
-   * See [Setting your app locale](guide/i18n/locale-id).
-   */
   transform(value, digitsInfo, locale) {
     if (!isValue(value)) return null;
     locale ||= this._locale;
@@ -3717,22 +3272,12 @@ var CommonModule = class _CommonModule {
   }], null, null);
 })();
 
-// node_modules/@angular/common/fesm2022/xhr.mjs
-function parseCookieValue(cookieStr, name) {
-  name = encodeURIComponent(name);
-  for (const cookie of cookieStr.split(";")) {
-    const eqIndex = cookie.indexOf("=");
-    const [cookieName, cookieValue] = eqIndex == -1 ? [cookie, ""] : [cookie.slice(0, eqIndex), cookie.slice(eqIndex + 1)];
-    if (cookieName.trim() === name) {
-      return decodeURIComponent(cookieValue);
-    }
+// node_modules/@angular/common/fesm2022/_platform_navigation-chunk.mjs
+var PRECOMMIT_HANDLER_SUPPORTED = new InjectionToken("", {
+  factory: () => {
+    return typeof window !== "undefined" && typeof window.NavigationPrecommitController !== "undefined";
   }
-  return null;
-}
-var XhrFactory = class {
-};
-
-// node_modules/@angular/common/fesm2022/platform_navigation.mjs
+});
 var PlatformNavigation = class _PlatformNavigation {
   static ɵfac = function PlatformNavigation_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _PlatformNavigation)();
@@ -3753,21 +3298,89 @@ var PlatformNavigation = class _PlatformNavigation {
   }], null, null);
 })();
 
+// node_modules/@angular/common/fesm2022/_xhr-chunk.mjs
+function parseCookieValue(cookieStr, name) {
+  name = encodeURIComponent(name);
+  for (const cookie of cookieStr.split(";")) {
+    const eqIndex = cookie.indexOf("=");
+    const [cookieName, cookieValue] = eqIndex == -1 ? [cookie, ""] : [cookie.slice(0, eqIndex), cookie.slice(eqIndex + 1)];
+    if (cookieName.trim() === name) {
+      return decodeURIComponent(cookieValue);
+    }
+  }
+  return null;
+}
+var XhrFactory = class {
+};
+
 // node_modules/@angular/common/fesm2022/common.mjs
+var NavigationAdapterForLocation = class _NavigationAdapterForLocation extends Location {
+  navigation = inject(PlatformNavigation);
+  destroyRef = inject(DestroyRef);
+  constructor() {
+    super(inject(LocationStrategy));
+    this.registerNavigationListeners();
+  }
+  registerNavigationListeners() {
+    const currentEntryChangeListener = () => {
+      this._notifyUrlChangeListeners(this.path(true), this.getState());
+    };
+    this.navigation.addEventListener("currententrychange", currentEntryChangeListener);
+    this.destroyRef.onDestroy(() => {
+      this.navigation.removeEventListener("currententrychange", currentEntryChangeListener);
+    });
+  }
+  getState() {
+    return this.navigation.currentEntry?.getState();
+  }
+  replaceState(path, query = "", state = null) {
+    const url = this.prepareExternalUrl(path + normalizeQueryParams(query));
+    this.navigation.navigate(url, {
+      state,
+      history: "replace"
+    });
+  }
+  go(path, query = "", state = null) {
+    const url = this.prepareExternalUrl(path + normalizeQueryParams(query));
+    this.navigation.navigate(url, {
+      state,
+      history: "push"
+    });
+  }
+  back() {
+    this.navigation.back();
+  }
+  forward() {
+    this.navigation.forward();
+  }
+  onUrlChange(fn) {
+    this._urlChangeListeners.push(fn);
+    return () => {
+      const fnIndex = this._urlChangeListeners.indexOf(fn);
+      this._urlChangeListeners.splice(fnIndex, 1);
+    };
+  }
+  static ɵfac = function NavigationAdapterForLocation_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NavigationAdapterForLocation)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _NavigationAdapterForLocation,
+    factory: _NavigationAdapterForLocation.ɵfac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NavigationAdapterForLocation, [{
+    type: Injectable
+  }], () => [], null);
+})();
 var PLATFORM_BROWSER_ID = "browser";
-var VERSION = new Version("20.3.16");
+var VERSION = new Version("21.1.2");
 var ViewportScroller = class _ViewportScroller {
-  // De-sugared tree-shakable injection
-  // See #23917
-  /** @nocollapse */
-  static ɵprov = (
-    /** @pureOrBreakMyCode */
-    ɵɵdefineInjectable({
-      token: _ViewportScroller,
-      providedIn: "root",
-      factory: () => false ? new NullViewportScroller() : new BrowserViewportScroller(inject(DOCUMENT), window)
-    })
-  );
+  static ɵprov = ɵɵdefineInjectable({
+    token: _ViewportScroller,
+    providedIn: "root",
+    factory: () => false ? new NullViewportScroller() : new BrowserViewportScroller(inject(DOCUMENT), window)
+  });
 };
 var BrowserViewportScroller = class {
   document;
@@ -3777,12 +3390,6 @@ var BrowserViewportScroller = class {
     this.document = document2;
     this.window = window2;
   }
-  /**
-   * Configures the top offset used when scrolling to an anchor.
-   * @param offset A position in screen coordinates (a tuple with x and y values)
-   * or a function that returns the top offset position.
-   *
-   */
   setOffset(offset) {
     if (Array.isArray(offset)) {
       this.offset = () => offset;
@@ -3790,34 +3397,15 @@ var BrowserViewportScroller = class {
       this.offset = offset;
     }
   }
-  /**
-   * Retrieves the current scroll position.
-   * @returns The position in screen coordinates.
-   */
   getScrollPosition() {
     return [this.window.scrollX, this.window.scrollY];
   }
-  /**
-   * Sets the scroll position.
-   * @param position The new position in screen coordinates.
-   */
   scrollToPosition(position, options) {
     this.window.scrollTo(__spreadProps(__spreadValues({}, options), {
       left: position[0],
       top: position[1]
     }));
   }
-  /**
-   * Scrolls to an element and attempts to focus the element.
-   *
-   * Note that the function name here is misleading in that the target string may be an ID for a
-   * non-anchor element.
-   *
-   * @param target The ID of an element or name of the anchor.
-   *
-   * @see https://html.spec.whatwg.org/#the-indicated-part-of-the-document
-   * @see https://html.spec.whatwg.org/#scroll-to-fragid
-   */
   scrollToAnchor(target, options) {
     const elSelected = findAnchorFromDocument(this.document, target);
     if (elSelected) {
@@ -3825,22 +3413,13 @@ var BrowserViewportScroller = class {
       elSelected.focus();
     }
   }
-  /**
-   * Disables automatic scroll restoration provided by the browser.
-   */
   setHistoryScrollRestoration(scrollRestoration) {
     try {
       this.window.history.scrollRestoration = scrollRestoration;
-    } catch {
+    } catch (e) {
       console.warn(formatRuntimeError(2400, ngDevMode && "Failed to set `window.history.scrollRestoration`. This may occur when:\n• The script is running inside a sandboxed iframe\n• The window is partially navigated or inactive\n• The script is executed in an untrusted or special context (e.g., test runners, browser extensions, or content previews)\nScroll position may not be preserved across navigation."));
     }
   }
-  /**
-   * Scrolls to an element using the native offset and the specified offset set on this scroller.
-   *
-   * The offset can be used when we know that there is a floating header and scrolling naively to an
-   * element (ex: `scrollIntoView`) leaves the element hidden behind the floating header.
-   */
   scrollToElement(el, options) {
     const rect = el.getBoundingClientRect();
     const left = rect.left + this.window.pageXOffset;
@@ -3891,7 +3470,7 @@ function isValidPath(path) {
   try {
     const url = new URL(path);
     return true;
-  } catch {
+  } catch (e) {
     return false;
   }
 }
@@ -3902,8 +3481,7 @@ function normalizeSrc(src) {
   return src.startsWith("/") ? src.slice(1) : src;
 }
 var noopImageLoader = (config) => config.src;
-var IMAGE_LOADER = new InjectionToken(ngDevMode ? "ImageLoader" : "", {
-  providedIn: "root",
+var IMAGE_LOADER = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "ImageLoader" : "", {
   factory: () => noopImageLoader
 });
 function createImageLoader(buildUrlFn, exampleUrls) {
@@ -3933,6 +3511,12 @@ function throwInvalidPathError(path, exampleUrls) {
 function throwUnexpectedAbsoluteUrlError(path, url) {
   throw new RuntimeError(2959, ngDevMode && `Image loader has detected a \`<img>\` tag with an invalid \`ngSrc\` attribute: ${url}. This image loader expects \`ngSrc\` to be a relative URL - however the provided value is an absolute URL. To fix this, provide \`ngSrc\` as a path relative to the base URL configured for this loader (\`${path}\`).`);
 }
+function normalizeLoaderTransform(transform, separator) {
+  if (typeof transform === "string") {
+    return transform;
+  }
+  return Object.entries(transform).map(([key, value]) => `${key}${separator}${value}`).join(",");
+}
 var provideCloudflareLoader = createImageLoader(createCloudflareUrl, ngDevMode ? ["https://<ZONE>/cdn-cgi/image/<OPTIONS>/<SOURCE-IMAGE>"] : void 0);
 function createCloudflareUrl(path, config) {
   let params = `format=auto`;
@@ -3941,6 +3525,10 @@ function createCloudflareUrl(path, config) {
   }
   if (config.isPlaceholder) {
     params += `,quality=${PLACEHOLDER_QUALITY}`;
+  }
+  if (config.loaderParams?.["transform"]) {
+    const transformStr = normalizeLoaderTransform(config.loaderParams["transform"], "=");
+    params += `,${transformStr}`;
   }
   return `${path}/cdn-cgi/image/${params}/${config.src}`;
 }
@@ -3961,6 +3549,10 @@ function createCloudinaryUrl(path, config) {
   }
   if (config.loaderParams?.["rounded"]) {
     params += `,r_max`;
+  }
+  if (config.loaderParams?.["transform"]) {
+    const transformStr = normalizeLoaderTransform(config.loaderParams["transform"], "_");
+    params += `,${transformStr}`;
   }
   return `${path}/image/upload/${params}/${config.src}`;
 }
@@ -3985,6 +3577,10 @@ function createImagekitUrl(path, config) {
   if (config.isPlaceholder) {
     params.push(`q-${PLACEHOLDER_QUALITY}`);
   }
+  if (config.loaderParams?.["transform"]) {
+    const transformStr = normalizeLoaderTransform(config.loaderParams["transform"], "-");
+    params.push(transformStr);
+  }
   const urlSegments = params.length ? [path, `tr:${params.join(",")}`, src] : [path, src];
   const url = new URL(urlSegments.join("/"));
   return url.href;
@@ -3999,14 +3595,20 @@ function isImgixUrl(url) {
 }
 var provideImgixLoader = createImageLoader(createImgixUrl, ngDevMode ? ["https://somepath.imgix.net/"] : void 0);
 function createImgixUrl(path, config) {
-  const url = new URL(`${path}/${config.src}`);
-  url.searchParams.set("auto", "format");
+  const params = [];
+  params.push("auto=format");
   if (config.width) {
-    url.searchParams.set("w", config.width.toString());
+    params.push(`w=${config.width}`);
   }
   if (config.isPlaceholder) {
-    url.searchParams.set("q", PLACEHOLDER_QUALITY);
+    params.push(`q=${PLACEHOLDER_QUALITY}`);
   }
+  if (config.loaderParams?.["transform"]) {
+    const transform = normalizeLoaderTransform(config.loaderParams["transform"], "=").split(",");
+    params.push(...transform);
+  }
+  const url = new URL(`${path}/${config.src}`);
+  url.search = params.join("&");
   return url.href;
 }
 var netlifyLoaderInfo = {
@@ -4027,7 +3629,6 @@ function assertDevMode(checkName) {
   }
 }
 var LCPImageObserver = class _LCPImageObserver {
-  // Map of full image URLs -> original `ngSrc` values.
   images = /* @__PURE__ */ new Map();
   window = inject(DOCUMENT).defaultView;
   observer = null;
@@ -4037,10 +3638,6 @@ var LCPImageObserver = class _LCPImageObserver {
       this.observer = this.initPerformanceObserver();
     }
   }
-  /**
-   * Inits PerformanceObserver and subscribes to LCP events.
-   * Based on https://web.dev/lcp/#measure-lcp-in-javascript
-   */
   initPerformanceObserver() {
     const observer = new PerformanceObserver((entryList) => {
       const entries = entryList.getEntries();
@@ -4120,17 +3717,10 @@ function logModifiedWarning(ngSrc) {
   console.warn(formatRuntimeError(2964, `${directiveDetails} this image is the Largest Contentful Paint (LCP) element and has had its "ngSrc" attribute modified. This can cause slower loading performance. It is recommended not to modify the "ngSrc" property on any image which could be the LCP element.`));
 }
 var INTERNAL_PRECONNECT_CHECK_BLOCKLIST = /* @__PURE__ */ new Set(["localhost", "127.0.0.1", "0.0.0.0", "[::1]"]);
-var PRECONNECT_CHECK_BLOCKLIST = new InjectionToken(ngDevMode ? "PRECONNECT_CHECK_BLOCKLIST" : "");
+var PRECONNECT_CHECK_BLOCKLIST = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "PRECONNECT_CHECK_BLOCKLIST" : "");
 var PreconnectLinkChecker = class _PreconnectLinkChecker {
   document = inject(DOCUMENT);
-  /**
-   * Set of <link rel="preconnect"> tags found on this page.
-   * The `null` value indicates that there was no DOM query operation performed.
-   */
   preconnectLinks = null;
-  /*
-   * Keep track of all already seen origin URLs to avoid repeating the same check.
-   */
   alreadySeen = /* @__PURE__ */ new Set();
   window = this.document.defaultView;
   blocklist = new Set(INTERNAL_PRECONNECT_CHECK_BLOCKLIST);
@@ -4152,13 +3742,6 @@ var PreconnectLinkChecker = class _PreconnectLinkChecker {
       this.blocklist.add(extractHostname(origins));
     }
   }
-  /**
-   * Checks that a preconnect resource hint exists in the head for the
-   * given src.
-   *
-   * @param rewrittenSrc src formatted with loader
-   * @param originalNgSrc ngSrc value
-   */
   assertPreconnect(rewrittenSrc, originalNgSrc) {
     if (false) return;
     const imgUrl = getUrl(rewrittenSrc, this.window);
@@ -4207,29 +3790,12 @@ function deepForEach(input, fn) {
 }
 var DEFAULT_PRELOADED_IMAGES_LIMIT = 5;
 var PRELOADED_IMAGES = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "NG_OPTIMIZED_PRELOADED_IMAGES" : "", {
-  providedIn: "root",
   factory: () => /* @__PURE__ */ new Set()
 });
 var PreloadLinkCreator = class _PreloadLinkCreator {
   preloadedImages = inject(PRELOADED_IMAGES);
   document = inject(DOCUMENT);
   errorShown = false;
-  /**
-   * @description Add a preload `<link>` to the `<head>` of the `index.html` that is served from the
-   * server while using Angular Universal and SSR to kick off image loads for high priority images.
-   *
-   * The `sizes` (passed in from the user) and `srcset` (parsed and formatted from `ngSrcset`)
-   * properties used to set the corresponding attributes, `imagesizes` and `imagesrcset`
-   * respectively, on the preload `<link>` tag so that the correctly sized image is preloaded from
-   * the CDN.
-   *
-   * {@link https://web.dev/preload-responsive-images/#imagesrcset-and-imagesizes}
-   *
-   * @param renderer The `Renderer2` passed in from the directive
-   * @param src The original src of the image that is set on the `ngSrc` input.
-   * @param srcset The parsed and formatted srcset created from the `ngSrcset` input
-   * @param sizes The value of the `sizes` attribute passed in to the `<img>` tag
-   */
   createPreloadLinkTag(renderer, src, srcset, sizes) {
     if (ngDevMode && !this.errorShown && this.preloadedImages.size >= DEFAULT_PRELOADED_IMAGES_LIMIT) {
       this.errorShown = true;
@@ -4293,108 +3859,22 @@ var NgOptimizedImage = class _NgOptimizedImage {
   imgElement = inject(ElementRef).nativeElement;
   injector = inject(Injector);
   destroyRef = inject(DestroyRef);
-  // An LCP image observer should be injected only in development mode.
-  // Do not assign it to `null` to avoid having a redundant property in the production bundle.
   lcpObserver;
-  /**
-   * Calculate the rewritten `src` once and store it.
-   * This is needed to avoid repetitive calculations and make sure the directive cleanup in the
-   * `ngOnDestroy` does not rely on the `IMAGE_LOADER` logic (which in turn can rely on some other
-   * instance that might be already destroyed).
-   */
   _renderedSrc = null;
-  /**
-   * Name of the source image.
-   * Image name will be processed by the image loader and the final URL will be applied as the `src`
-   * property of the image.
-   */
   ngSrc;
-  /**
-   * A comma separated list of width or density descriptors.
-   * The image name will be taken from `ngSrc` and combined with the list of width or density
-   * descriptors to generate the final `srcset` property of the image.
-   *
-   * Example:
-   * ```html
-   * <img ngSrc="hello.jpg" ngSrcset="100w, 200w" />  =>
-   * <img src="path/hello.jpg" srcset="path/hello.jpg?w=100 100w, path/hello.jpg?w=200 200w" />
-   * ```
-   */
   ngSrcset;
-  /**
-   * The base `sizes` attribute passed through to the `<img>` element.
-   * Providing sizes causes the image to create an automatic responsive srcset.
-   */
   sizes;
-  /**
-   * For responsive images: the intrinsic width of the image in pixels.
-   * For fixed size images: the desired rendered width of the image in pixels.
-   */
   width;
-  /**
-   * For responsive images: the intrinsic height of the image in pixels.
-   * For fixed size images: the desired rendered height of the image in pixels.
-   */
   height;
-  /**
-   * The desired decoding behavior for the image. Defaults to `auto`
-   * if not explicitly set, matching native browser behavior.
-   *
-   * Use `async` to decode the image off the main thread (non-blocking),
-   * `sync` for immediate decoding (blocking), or `auto` to let the
-   * browser decide the optimal strategy.
-   *
-   * [Spec](https://html.spec.whatwg.org/multipage/images.html#image-decoding-hint)
-   */
   decoding;
-  /**
-   * The desired loading behavior (lazy, eager, or auto). Defaults to `lazy`,
-   * which is recommended for most images.
-   *
-   * Warning: Setting images as loading="eager" or loading="auto" marks them
-   * as non-priority images and can hurt loading performance. For images which
-   * may be the LCP element, use the `priority` attribute instead of `loading`.
-   */
   loading;
-  /**
-   * Indicates whether this image should have a high priority.
-   */
   priority = false;
-  /**
-   * Data to pass through to custom loaders.
-   */
   loaderParams;
-  /**
-   * Disables automatic srcset generation for this image.
-   */
   disableOptimizedSrcset = false;
-  /**
-   * Sets the image to "fill mode", which eliminates the height/width requirement and adds
-   * styles such that the image fills its containing element.
-   */
   fill = false;
-  /**
-   * A URL or data URL for an image to be used as a placeholder while this image loads.
-   */
   placeholder;
-  /**
-   * Configuration object for placeholder settings. Options:
-   *   * blur: Setting this to false disables the automatic CSS blur.
-   */
   placeholderConfig;
-  /**
-   * Value of the `src` attribute if set on the host `<img>` element.
-   * This input is exclusively read to assert that `src` is not set in conflict
-   * with `ngSrc` and that images don't start to load until a lazy loading strategy is set.
-   * @internal
-   */
   src;
-  /**
-   * Value of the `srcset` attribute if set on the host `<img>` element.
-   * This input is exclusively read to assert that `srcset` is not set in conflict
-   * with `ngSrcset` and that images don't start to load until a lazy loading strategy is set.
-   * @internal
-   */
   srcset;
   constructor() {
     if (ngDevMode) {
@@ -4406,7 +3886,6 @@ var NgOptimizedImage = class _NgOptimizedImage {
       });
     }
   }
-  /** @docs-private */
   ngOnInit() {
     performanceMarkFeature("NgOptimizedImage");
     if (ngDevMode) {
@@ -4486,7 +3965,6 @@ var NgOptimizedImage = class _NgOptimizedImage {
       preloadLinkCreator.createPreloadLinkTag(this.renderer, this.getRewrittenSrc(), rewrittenSrcset, this.sizes);
     }
   }
-  /** @docs-private */
   ngOnChanges(changes) {
     if (ngDevMode) {
       assertNoPostInitInputChange(this, changes, ["ngSrcset", "width", "height", "priority", "fill", "loading", "sizes", "loaderParams", "disableOptimizedSrcset"]);
@@ -4603,11 +4081,6 @@ var NgOptimizedImage = class _NgOptimizedImage {
     }
     return !this.disableOptimizedSrcset && !this.srcset && this.imageLoader !== noopImageLoader && !oversizedImage;
   }
-  /**
-   * Returns an image url formatted for use with the CSS background-image property. Expects one of:
-   * * A base64 encoded image, which is wrapped and passed through.
-   * * A boolean. If true, calls the image loader to generate a small placeholder url.
-   */
   generatePlaceholder(placeholderInput) {
     const {
       placeholderResolution
@@ -4623,10 +4096,6 @@ var NgOptimizedImage = class _NgOptimizedImage {
     }
     return null;
   }
-  /**
-   * Determines if blur should be applied, based on an optional boolean
-   * property `blur` within the optional configuration object `placeholderConfig`.
-   */
   shouldBlurPlaceholder(placeholderConfig) {
     if (!placeholderConfig || !placeholderConfig.hasOwnProperty("blur")) {
       return true;
@@ -5065,22 +4534,18 @@ function booleanOrUrlAttribute(value) {
   return booleanAttribute(value);
 }
 
-// node_modules/@angular/platform-browser/fesm2022/dom_renderer.mjs
+// node_modules/@angular/platform-browser/fesm2022/_dom_renderer-chunk.mjs
 var EventManagerPlugin = class {
   _doc;
-  // TODO: remove (has some usage in G3)
   constructor(_doc) {
     this._doc = _doc;
   }
-  // Using non-null assertion because it's set by EventManager's constructor
   manager;
 };
 var DomEventsPlugin = class _DomEventsPlugin extends EventManagerPlugin {
   constructor(doc) {
     super(doc);
   }
-  // This plugin should come last in the list of plugins, because it accepts all
-  // events.
   supports(eventName) {
     return true;
   }
@@ -5110,14 +4575,11 @@ var DomEventsPlugin = class _DomEventsPlugin extends EventManagerPlugin {
     }]
   }], null);
 })();
-var EVENT_MANAGER_PLUGINS = new InjectionToken(ngDevMode ? "EventManagerPlugins" : "");
+var EVENT_MANAGER_PLUGINS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "EventManagerPlugins" : "");
 var EventManager = class _EventManager {
   _zone;
   _plugins;
   _eventNameToPlugin = /* @__PURE__ */ new Map();
-  /**
-   * Initializes an instance of the event-manager service.
-   */
   constructor(plugins, _zone) {
     this._zone = _zone;
     plugins.forEach((plugin) => {
@@ -5130,27 +4592,13 @@ var EventManager = class _EventManager {
       this._plugins.push(domEventPlugin);
     }
   }
-  /**
-   * Registers a handler for a specific element and event.
-   *
-   * @param element The HTML element to receive event notifications.
-   * @param eventName The name of the event to listen for.
-   * @param handler A function to call when the notification occurs. Receives the
-   * event object as an argument.
-   * @param options Options that configure how the event listener is bound.
-   * @returns  A callback function that can be used to remove the handler.
-   */
   addEventListener(element, eventName, handler, options) {
     const plugin = this._findPluginFor(eventName);
     return plugin.addEventListener(element, eventName, handler, options);
   }
-  /**
-   * Retrieves the compilation zone in which event listeners are registered.
-   */
   getZone() {
     return this._zone;
   }
-  /** @internal */
   _findPluginFor(eventName) {
     let plugin = this._eventNameToPlugin.get(eventName);
     if (plugin) {
@@ -5225,19 +4673,8 @@ var SharedStylesHost = class _SharedStylesHost {
   doc;
   appId;
   nonce;
-  /**
-   * Provides usage information for active inline style content and associated HTML <style> elements.
-   * Embedded styles typically originate from the `styles` metadata of a rendered component.
-   */
   inline = /* @__PURE__ */ new Map();
-  /**
-   * Provides usage information for active external style URLs and the associated HTML <link> elements.
-   * External styles typically originate from the `ɵɵExternalStylesFeature` of a rendered component.
-   */
   external = /* @__PURE__ */ new Map();
-  /**
-   * Set of host DOM nodes that will have styles attached.
-   */
   hosts = /* @__PURE__ */ new Set();
   constructor(doc, appId, nonce, platformId = {}) {
     this.doc = doc;
@@ -5246,20 +4683,12 @@ var SharedStylesHost = class _SharedStylesHost {
     addServerStyles(doc, appId, this.inline, this.external);
     this.hosts.add(doc.head);
   }
-  /**
-   * Adds embedded styles to the DOM via HTML `style` elements.
-   * @param styles An array of style content strings.
-   */
   addStyles(styles, urls) {
     for (const value of styles) {
       this.addUsage(value, this.inline, createStyleElement);
     }
     urls?.forEach((value) => this.addUsage(value, this.external, createLinkElement));
   }
-  /**
-   * Removes embedded styles from the DOM that were added as HTML `style` elements.
-   * @param styles An array of style content strings.
-   */
   removeStyles(styles, urls) {
     for (const value of styles) {
       this.removeUsage(value, this.inline);
@@ -5298,12 +4727,6 @@ var SharedStylesHost = class _SharedStylesHost {
     }
     this.hosts.clear();
   }
-  /**
-   * Adds a host node to the set of style hosts and adds all existing style usage to
-   * the newly added host node.
-   *
-   * This is currently only used for Shadow DOM encapsulation mode.
-   */
   addHost(hostNode) {
     this.hosts.add(hostNode);
     for (const [style, {
@@ -5383,8 +4806,7 @@ var COMPONENT_VARIABLE = "%COMP%";
 var HOST_ATTR = `_nghost-${COMPONENT_VARIABLE}`;
 var CONTENT_ATTR = `_ngcontent-${COMPONENT_VARIABLE}`;
 var REMOVE_STYLES_ON_COMPONENT_DESTROY_DEFAULT = true;
-var REMOVE_STYLES_ON_COMPONENT_DESTROY = new InjectionToken(ngDevMode ? "RemoveStylesOnCompDestroy" : "", {
-  providedIn: "root",
+var REMOVE_STYLES_ON_COMPONENT_DESTROY = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "RemoveStylesOnCompDestroy" : "", {
   factory: () => REMOVE_STYLES_ON_COMPONENT_DESTROY_DEFAULT
 });
 function shimContentAttribute(componentShortId) {
@@ -5427,7 +4849,6 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
   tracingService;
   rendererByCompId = /* @__PURE__ */ new Map();
   defaultRenderer;
-  platformIsServer;
   constructor(eventManager, sharedStylesHost, appId, removeStylesOnCompDestroy, doc, ngZone, nonce = null, tracingService = null) {
     this.eventManager = eventManager;
     this.sharedStylesHost = sharedStylesHost;
@@ -5437,8 +4858,7 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     this.ngZone = ngZone;
     this.nonce = nonce;
     this.tracingService = tracingService;
-    this.platformIsServer = false;
-    this.defaultRenderer = new DefaultDomRenderer2(eventManager, doc, ngZone, this.platformIsServer, this.tracingService);
+    this.defaultRenderer = new DefaultDomRenderer2(eventManager, doc, ngZone, this.tracingService);
   }
   createRenderer(element, type) {
     if (!element || !type) {
@@ -5466,16 +4886,17 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
       const eventManager = this.eventManager;
       const sharedStylesHost = this.sharedStylesHost;
       const removeStylesOnCompDestroy = this.removeStylesOnCompDestroy;
-      const platformIsServer = this.platformIsServer;
       const tracingService = this.tracingService;
       switch (type.encapsulation) {
         case ViewEncapsulation.Emulated:
-          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type, this.appId, removeStylesOnCompDestroy, doc, ngZone, platformIsServer, tracingService);
+          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService);
           break;
         case ViewEncapsulation.ShadowDom:
-          return new ShadowDomRenderer(eventManager, sharedStylesHost, element, type, doc, ngZone, this.nonce, platformIsServer, tracingService);
+          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService, sharedStylesHost);
+        case ViewEncapsulation.ExperimentalIsolatedShadowDom:
+          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService);
         default:
-          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type, removeStylesOnCompDestroy, doc, ngZone, platformIsServer, tracingService);
+          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type, removeStylesOnCompDestroy, doc, ngZone, tracingService);
           break;
       }
       rendererByCompId.set(type.id, renderer);
@@ -5485,10 +4906,6 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
   ngOnDestroy() {
     this.rendererByCompId.clear();
   }
-  /**
-   * Used during HMR to clear any cached data about a component.
-   * @param componentId ID of the component that is being replaced.
-   */
   componentReplaced(componentId) {
     this.rendererByCompId.delete(componentId);
   }
@@ -5547,19 +4964,13 @@ var DefaultDomRenderer2 = class {
   eventManager;
   doc;
   ngZone;
-  platformIsServer;
   tracingService;
   data = /* @__PURE__ */ Object.create(null);
-  /**
-   * By default this renderer throws when encountering synthetic properties
-   * This can be disabled for example by the AsyncAnimationRendererFactory
-   */
   throwOnSyntheticProps = true;
-  constructor(eventManager, doc, ngZone, platformIsServer, tracingService) {
+  constructor(eventManager, doc, ngZone, tracingService) {
     this.eventManager = eventManager;
     this.doc = doc;
     this.ngZone = ngZone;
-    this.platformIsServer = platformIsServer;
     this.tracingService = tracingService;
   }
   destroy() {
@@ -5700,17 +5111,19 @@ function isTemplateNode(node) {
   return node.tagName === "TEMPLATE" && node.content !== void 0;
 }
 var ShadowDomRenderer = class extends DefaultDomRenderer2 {
-  sharedStylesHost;
   hostEl;
+  sharedStylesHost;
   shadowRoot;
-  constructor(eventManager, sharedStylesHost, hostEl, component, doc, ngZone, nonce, platformIsServer, tracingService) {
-    super(eventManager, doc, ngZone, platformIsServer, tracingService);
-    this.sharedStylesHost = sharedStylesHost;
+  constructor(eventManager, hostEl, component, doc, ngZone, nonce, tracingService, sharedStylesHost) {
+    super(eventManager, doc, ngZone, tracingService);
     this.hostEl = hostEl;
+    this.sharedStylesHost = sharedStylesHost;
     this.shadowRoot = hostEl.attachShadow({
       mode: "open"
     });
-    this.sharedStylesHost.addHost(this.shadowRoot);
+    if (this.sharedStylesHost) {
+      this.sharedStylesHost.addHost(this.shadowRoot);
+    }
     let styles = component.styles;
     if (ngDevMode) {
       const baseHref = getDOM().getBaseHref(doc) ?? "";
@@ -5752,7 +5165,9 @@ var ShadowDomRenderer = class extends DefaultDomRenderer2 {
     return this.nodeOrShadowRoot(super.parentNode(this.nodeOrShadowRoot(node)));
   }
   destroy() {
-    this.sharedStylesHost.removeHost(this.shadowRoot);
+    if (this.sharedStylesHost) {
+      this.sharedStylesHost.removeHost(this.shadowRoot);
+    }
   }
 };
 var NoneEncapsulationDomRenderer = class extends DefaultDomRenderer2 {
@@ -5760,8 +5175,8 @@ var NoneEncapsulationDomRenderer = class extends DefaultDomRenderer2 {
   removeStylesOnCompDestroy;
   styles;
   styleUrls;
-  constructor(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, platformIsServer, tracingService, compId) {
-    super(eventManager, doc, ngZone, platformIsServer, tracingService);
+  constructor(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, tracingService, compId) {
+    super(eventManager, doc, ngZone, tracingService);
     this.sharedStylesHost = sharedStylesHost;
     this.removeStylesOnCompDestroy = removeStylesOnCompDestroy;
     let styles = component.styles;
@@ -5787,9 +5202,9 @@ var NoneEncapsulationDomRenderer = class extends DefaultDomRenderer2 {
 var EmulatedEncapsulationDomRenderer2 = class extends NoneEncapsulationDomRenderer {
   contentAttr;
   hostAttr;
-  constructor(eventManager, sharedStylesHost, component, appId, removeStylesOnCompDestroy, doc, ngZone, platformIsServer, tracingService) {
+  constructor(eventManager, sharedStylesHost, component, appId, removeStylesOnCompDestroy, doc, ngZone, tracingService) {
     const compId = appId + "-" + component.id;
-    super(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, platformIsServer, tracingService, compId);
+    super(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, tracingService, compId);
     this.contentAttr = shimContentAttribute(compId);
     this.hostAttr = shimHostAttribute(compId);
   }
@@ -5804,7 +5219,7 @@ var EmulatedEncapsulationDomRenderer2 = class extends NoneEncapsulationDomRender
   }
 };
 
-// node_modules/@angular/platform-browser/fesm2022/browser.mjs
+// node_modules/@angular/platform-browser/fesm2022/_browser-chunk.mjs
 var BrowserDomAdapter = class _BrowserDomAdapter extends DomAdapter {
   supportsDOMEvents = true;
   static makeCurrent() {
@@ -5838,7 +5253,6 @@ var BrowserDomAdapter = class _BrowserDomAdapter extends DomAdapter {
   isShadowRoot(node) {
     return node instanceof DocumentFragment;
   }
-  /** @deprecated No longer being used in Ivy code. To be removed in version 14. */
   getGlobalEventTarget(doc, target) {
     if (target === "window") {
       return window;
@@ -5958,29 +5372,12 @@ var MODIFIER_KEY_GETTERS = {
   "shift": (event) => event.shiftKey
 };
 var KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
-  /**
-   * Initializes an instance of the browser plug-in.
-   * @param doc The document in which key events will be detected.
-   */
   constructor(doc) {
     super(doc);
   }
-  /**
-   * Reports whether a named key event is supported.
-   * @param eventName The event name to query.
-   * @return True if the named key event is supported.
-   */
   supports(eventName) {
     return _KeyEventsPlugin.parseEventName(eventName) != null;
   }
-  /**
-   * Registers a handler for a specific element and key event.
-   * @param element The HTML element to receive event notifications.
-   * @param eventName The name of the key event to listen for.
-   * @param handler A function to call when the notification occurs. Receives the
-   * event object as an argument.
-   * @returns The key event that was registered.
-   */
   addEventListener(element, eventName, handler, options) {
     const parsedEvent = _KeyEventsPlugin.parseEventName(eventName);
     const outsideHandler = _KeyEventsPlugin.eventCallback(parsedEvent["fullKey"], handler, this.manager.getZone());
@@ -5988,15 +5385,6 @@ var KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
       return getDOM().onAndCancel(element, parsedEvent["domEventName"], outsideHandler, options);
     });
   }
-  /**
-   * Parses the user provided full keyboard event definition and normalizes it for
-   * later internal use. It ensures the string is all lowercase, converts special
-   * characters to a standard spelling, and orders all the values consistently.
-   *
-   * @param eventName The name of the key event to listen for.
-   * @returns an object with the full, normalized string, and the dom event name
-   * or null in the case when the event doesn't match a keyboard event.
-   */
   static parseEventName(eventName) {
     const parts = eventName.toLowerCase().split(".");
     const domEventName = parts.shift();
@@ -6026,16 +5414,6 @@ var KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
     result["fullKey"] = fullKey;
     return result;
   }
-  /**
-   * Determines whether the actual keys pressed match the configured key code string.
-   * The `fullKeyCode` event is normalized in the `parseEventName` method when the
-   * event is attached to the DOM during the `addEventListener` call. This is unseen
-   * by the end user and is normalized for internal consistency and parsing.
-   *
-   * @param event The keyboard event.
-   * @param fullKeyCode The normalized user defined expected key event string
-   * @returns boolean.
-   */
   static matchEventFullKeyCode(event, fullKeyCode) {
     let keycode = _keyMap[event.key] || event.key;
     let key = "";
@@ -6061,13 +5439,6 @@ var KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
     key += keycode;
     return key === fullKeyCode;
   }
-  /**
-   * Configures a handler callback for a key event.
-   * @param fullKey The event name that combines all simultaneous keystrokes.
-   * @param handler The function that responds to the key event.
-   * @param zone The zone in which the event occurred.
-   * @returns A callback function.
-   */
   static eventCallback(fullKey, handler, zone) {
     return (event) => {
       if (_KeyEventsPlugin.matchEventFullKeyCode(event, fullKey)) {
@@ -6075,7 +5446,6 @@ var KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
       }
     };
   }
-  /** @internal */
   static _normalizeKey(keyName) {
     return keyName === "esc" ? "escape" : keyName;
   }
@@ -6099,23 +5469,27 @@ var KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
   }], null);
 })();
 function bootstrapApplication(rootComponent, options, context) {
-  const config = __spreadValues({
-    rootComponent,
-    platformRef: context?.platformRef
-  }, createProvidersConfig(options));
-  if (false) {
-    return resolveComponentResources(fetch).catch((error) => {
-      console.error(error);
-      return Promise.resolve();
-    }).then(() => internalCreateApplication(config));
-  }
-  return internalCreateApplication(config);
+  return __async(this, null, function* () {
+    const config = __spreadValues({
+      rootComponent
+    }, createProvidersConfig(options, context));
+    if (false) {
+      yield resolveJitResources();
+    }
+    return internalCreateApplication(config);
+  });
 }
-function createApplication(options) {
-  return internalCreateApplication(createProvidersConfig(options));
+function createApplication(options, context) {
+  return __async(this, null, function* () {
+    if (false) {
+      yield resolveJitResources();
+    }
+    return internalCreateApplication(createProvidersConfig(options, context));
+  });
 }
-function createProvidersConfig(options) {
+function createProvidersConfig(options, context) {
   return {
+    platformRef: context?.platformRef,
     appProviders: [...BROWSER_MODULE_PROVIDERS, ...options?.providers ?? []],
     platformProviders: INTERNAL_BROWSER_PLATFORM_PROVIDERS
   };
@@ -6151,13 +5525,10 @@ var TESTABILITY_PROVIDERS = [{
   useClass: BrowserGetTestability
 }, {
   provide: TESTABILITY,
-  useClass: Testability,
-  deps: [NgZone, TestabilityRegistry, TESTABILITY_GETTER]
+  useClass: Testability
 }, {
   provide: Testability,
-  // Also provide as `Testability` for backwards-compatibility.
-  useClass: Testability,
-  deps: [NgZone, TestabilityRegistry, TESTABILITY_GETTER]
+  useClass: Testability
 }];
 var BROWSER_MODULE_PROVIDERS = [{
   provide: INJECTOR_SCOPE,
@@ -6168,13 +5539,11 @@ var BROWSER_MODULE_PROVIDERS = [{
 }, {
   provide: EVENT_MANAGER_PLUGINS,
   useClass: DomEventsPlugin,
-  multi: true,
-  deps: [DOCUMENT]
+  multi: true
 }, {
   provide: EVENT_MANAGER_PLUGINS,
   useClass: KeyEventsPlugin,
-  multi: true,
-  deps: [DOCUMENT]
+  multi: true
 }, DomRendererFactory2, SharedStylesHost, EventManager, {
   provide: RendererFactory2,
   useExisting: DomRendererFactory2
@@ -6219,30 +5588,12 @@ var BrowserModule = class _BrowserModule {
   }], () => [], null);
 })();
 
-// node_modules/@angular/common/fesm2022/module.mjs
-var HttpHandler = class {
-};
-var HttpBackend = class {
-};
+// node_modules/@angular/common/fesm2022/_module-chunk.mjs
 var HttpHeaders = class _HttpHeaders {
-  /**
-   * Internal map of lowercase header names to values.
-   */
   headers;
-  /**
-   * Internal map of lowercased header names to the normalized
-   * form of the name (the form seen first).
-   */
   normalizedNames = /* @__PURE__ */ new Map();
-  /**
-   * Complete the lazy initialization of this object (needed before reading).
-   */
   lazyInit;
-  /**
-   * Queued updates to be materialized the next initialization.
-   */
   lazyUpdate = null;
-  /**  Constructs a new HTTP header object with the given values.*/
   constructor(headers) {
     if (!headers) {
       this.headers = /* @__PURE__ */ new Map();
@@ -6275,58 +5626,23 @@ var HttpHeaders = class _HttpHeaders {
       };
     }
   }
-  /**
-   * Checks for existence of a given header.
-   *
-   * @param name The header name to check for existence.
-   *
-   * @returns True if the header exists, false otherwise.
-   */
   has(name) {
     this.init();
     return this.headers.has(name.toLowerCase());
   }
-  /**
-   * Retrieves the first value of a given header.
-   *
-   * @param name The header name.
-   *
-   * @returns The value string if the header exists, null otherwise
-   */
   get(name) {
     this.init();
     const values = this.headers.get(name.toLowerCase());
     return values && values.length > 0 ? values[0] : null;
   }
-  /**
-   * Retrieves the names of the headers.
-   *
-   * @returns A list of header names.
-   */
   keys() {
     this.init();
     return Array.from(this.normalizedNames.values());
   }
-  /**
-   * Retrieves a list of values for a given header.
-   *
-   * @param name The header name from which to retrieve values.
-   *
-   * @returns A string of values if the header exists, null otherwise.
-   */
   getAll(name) {
     this.init();
     return this.headers.get(name.toLowerCase()) || null;
   }
-  /**
-   * Appends a new value to the existing set of values for a header
-   * and returns them in a clone of the original instance.
-   *
-   * @param name The header name for which to append the values.
-   * @param value The value to append.
-   *
-   * @returns A clone of the HTTP headers object with the value appended to the given header.
-   */
   append(name, value) {
     return this.clone({
       name,
@@ -6334,16 +5650,6 @@ var HttpHeaders = class _HttpHeaders {
       op: "a"
     });
   }
-  /**
-   * Sets or modifies a value for a given header in a clone of the original instance.
-   * If the header already exists, its value is replaced with the given value
-   * in the returned object.
-   *
-   * @param name The header name.
-   * @param value The value or values to set or override for the given header.
-   *
-   * @returns A clone of the HTTP headers object with the newly set header value.
-   */
   set(name, value) {
     return this.clone({
       name,
@@ -6351,14 +5657,6 @@ var HttpHeaders = class _HttpHeaders {
       op: "s"
     });
   }
-  /**
-   * Deletes values for a given header in a clone of the original instance.
-   *
-   * @param name The header name.
-   * @param value The value or values to delete for the given header.
-   *
-   * @returns A clone of the HTTP headers object with the given value deleted.
-   */
   delete(name, value) {
     return this.clone({
       name,
@@ -6451,9 +5749,6 @@ var HttpHeaders = class _HttpHeaders {
     this.headers.set(key, headerValues);
     this.maybeSetNormalizedName(name, key);
   }
-  /**
-   * @internal
-   */
   forEach(fn) {
     this.init();
     Array.from(this.normalizedNames.keys()).forEach((key) => fn(this.normalizedNames.get(key), this.headers.get(key)));
@@ -6466,36 +5761,39 @@ function assertValidHeaders(headers) {
     }
   }
 }
+var HttpContext = class {
+  map = /* @__PURE__ */ new Map();
+  set(token, value) {
+    this.map.set(token, value);
+    return this;
+  }
+  get(token) {
+    if (!this.map.has(token)) {
+      this.map.set(token, token.defaultValue());
+    }
+    return this.map.get(token);
+  }
+  delete(token) {
+    this.map.delete(token);
+    return this;
+  }
+  has(token) {
+    return this.map.has(token);
+  }
+  keys() {
+    return this.map.keys();
+  }
+};
 var HttpUrlEncodingCodec = class {
-  /**
-   * Encodes a key name for a URL parameter or query-string.
-   * @param key The key name.
-   * @returns The encoded key name.
-   */
   encodeKey(key) {
     return standardEncoding(key);
   }
-  /**
-   * Encodes the value of a URL parameter or query-string.
-   * @param value The value.
-   * @returns The encoded value.
-   */
   encodeValue(value) {
     return standardEncoding(value);
   }
-  /**
-   * Decodes an encoded URL parameter or query-string key.
-   * @param key The encoded key name.
-   * @returns The decoded key name.
-   */
   decodeKey(key) {
     return decodeURIComponent(key);
   }
-  /**
-   * Decodes an encoded URL parameter or query-string value.
-   * @param value The encoded value.
-   * @returns The decoded value.
-   */
   decodeValue(value) {
     return decodeURIComponent(value);
   }
@@ -6554,51 +5852,23 @@ var HttpParams = class _HttpParams {
       this.map = null;
     }
   }
-  /**
-   * Reports whether the body includes one or more values for a given parameter.
-   * @param param The parameter name.
-   * @returns True if the parameter has one or more values,
-   * false if it has no value or is not present.
-   */
   has(param) {
     this.init();
     return this.map.has(param);
   }
-  /**
-   * Retrieves the first value for a parameter.
-   * @param param The parameter name.
-   * @returns The first value of the given parameter,
-   * or `null` if the parameter is not present.
-   */
   get(param) {
     this.init();
     const res = this.map.get(param);
     return !!res ? res[0] : null;
   }
-  /**
-   * Retrieves all values for a  parameter.
-   * @param param The parameter name.
-   * @returns All values in a string array,
-   * or `null` if the parameter not present.
-   */
   getAll(param) {
     this.init();
     return this.map.get(param) || null;
   }
-  /**
-   * Retrieves all the parameters for this body.
-   * @returns The parameter names in a string array.
-   */
   keys() {
     this.init();
     return Array.from(this.map.keys());
   }
-  /**
-   * Appends a new value to existing values for a parameter.
-   * @param param The parameter name.
-   * @param value The new value to add.
-   * @return A new body with the appended value.
-   */
   append(param, value) {
     return this.clone({
       param,
@@ -6606,11 +5876,6 @@ var HttpParams = class _HttpParams {
       op: "a"
     });
   }
-  /**
-   * Constructs a new body with appended values for the given parameter name.
-   * @param params parameters and values
-   * @return A new body with the new value.
-   */
   appendAll(params) {
     const updates = [];
     Object.keys(params).forEach((param) => {
@@ -6633,12 +5898,6 @@ var HttpParams = class _HttpParams {
     });
     return this.clone(updates);
   }
-  /**
-   * Replaces the value for a parameter.
-   * @param param The parameter name.
-   * @param value The new value.
-   * @return A new body with the new value.
-   */
   set(param, value) {
     return this.clone({
       param,
@@ -6646,13 +5905,6 @@ var HttpParams = class _HttpParams {
       op: "s"
     });
   }
-  /**
-   * Removes a given value or all values from a parameter.
-   * @param param The parameter name.
-   * @param value The value to remove, if provided.
-   * @return A new body with the given value removed, or with all values
-   * removed if no value is specified.
-   */
   delete(param, value) {
     return this.clone({
       param,
@@ -6660,10 +5912,6 @@ var HttpParams = class _HttpParams {
       op: "d"
     });
   }
-  /**
-   * Serializes the body to an encoded string, where key-value pairs (separated by `=`) are
-   * separated by `&`s.
-   */
   toString() {
     this.init();
     return this.keys().map((key) => {
@@ -6716,61 +5964,6 @@ var HttpParams = class _HttpParams {
     }
   }
 };
-var HttpContext = class {
-  map = /* @__PURE__ */ new Map();
-  /**
-   * Store a value in the context. If a value is already present it will be overwritten.
-   *
-   * @param token The reference to an instance of `HttpContextToken`.
-   * @param value The value to store.
-   *
-   * @returns A reference to itself for easy chaining.
-   */
-  set(token, value) {
-    this.map.set(token, value);
-    return this;
-  }
-  /**
-   * Retrieve the value associated with the given token.
-   *
-   * @param token The reference to an instance of `HttpContextToken`.
-   *
-   * @returns The stored value or default if one is defined.
-   */
-  get(token) {
-    if (!this.map.has(token)) {
-      this.map.set(token, token.defaultValue());
-    }
-    return this.map.get(token);
-  }
-  /**
-   * Delete the value associated with the given token.
-   *
-   * @param token The reference to an instance of `HttpContextToken`.
-   *
-   * @returns A reference to itself for easy chaining.
-   */
-  delete(token) {
-    this.map.delete(token);
-    return this;
-  }
-  /**
-   * Checks for existence of a given token.
-   *
-   * @param token The reference to an instance of `HttpContextToken`.
-   *
-   * @returns True if the token exists, false otherwise.
-   */
-  has(token) {
-    return this.map.has(token);
-  }
-  /**
-   * @returns a list of tokens currently stored in the context.
-   */
-  keys() {
-    return this.map.keys();
-  }
-};
 function mightHaveBody(method) {
   switch (method) {
     case "DELETE":
@@ -6797,113 +5990,30 @@ function isUrlSearchParams(value) {
 }
 var CONTENT_TYPE_HEADER = "Content-Type";
 var ACCEPT_HEADER = "Accept";
-var X_REQUEST_URL_HEADER = "X-Request-URL";
 var TEXT_CONTENT_TYPE = "text/plain";
 var JSON_CONTENT_TYPE = "application/json";
 var ACCEPT_HEADER_VALUE = `${JSON_CONTENT_TYPE}, ${TEXT_CONTENT_TYPE}, */*`;
 var HttpRequest = class _HttpRequest {
   url;
-  /**
-   * The request body, or `null` if one isn't set.
-   *
-   * Bodies are not enforced to be immutable, as they can include a reference to any
-   * user-defined data type. However, interceptors should take care to preserve
-   * idempotence by treating them as such.
-   */
   body = null;
-  /**
-   * Outgoing headers for this request.
-   */
   headers;
-  /**
-   * Shared and mutable context that can be used by interceptors
-   */
   context;
-  /**
-   * Whether this request should be made in a way that exposes progress events.
-   *
-   * Progress events are expensive (change detection runs on each event) and so
-   * they should only be requested if the consumer intends to monitor them.
-   *
-   * Note: The `FetchBackend` doesn't support progress report on uploads.
-   */
   reportProgress = false;
-  /**
-   * Whether this request should be sent with outgoing credentials (cookies).
-   */
   withCredentials = false;
-  /**
-   *  The credentials mode of the request, which determines how cookies and HTTP authentication are handled.
-   *  This can affect whether cookies are sent with the request, and how authentication is handled.
-   */
   credentials;
-  /**
-   * When using the fetch implementation and set to `true`, the browser will not abort the associated request if the page that initiated it is unloaded before the request is complete.
-   */
   keepalive = false;
-  /**
-   * Controls how the request will interact with the browser's HTTP cache.
-   * This affects whether a response is retrieved from the cache, how it is stored, or if it bypasses the cache altogether.
-   */
   cache;
-  /**
-   * Indicates the relative priority of the request. This may be used by the browser to decide the order in which requests are dispatched and resources fetched.
-   */
   priority;
-  /**
-   * The mode of the request, which determines how the request will interact with the browser's security model.
-   * This can affect things like CORS (Cross-Origin Resource Sharing) and same-origin policies.
-   */
   mode;
-  /**
-   * The redirect mode of the request, which determines how redirects are handled.
-   * This can affect whether the request follows redirects automatically, or if it fails when a redirect occurs.
-   */
   redirect;
-  /**
-   * The referrer of the request, which can be used to indicate the origin of the request.
-   * This is useful for security and analytics purposes.
-   * Value is a same-origin URL, "about:client", or the empty string, to set request's referrer.
-   */
   referrer;
-  /**
-   * The integrity metadata of the request, which can be used to ensure the request is made with the expected content.
-   * A cryptographic hash of the resource to be fetched by request
-   */
   integrity;
-  /**
-   * The expected response type of the server.
-   *
-   * This is used to parse the response appropriately before returning it to
-   * the requestee.
-   */
+  referrerPolicy;
   responseType = "json";
-  /**
-   * The outgoing HTTP request method.
-   */
   method;
-  /**
-   * Outgoing URL parameters.
-   *
-   * To pass a string representation of HTTP parameters in the URL-query-string format,
-   * the `HttpParamsOptions`' `fromString` may be used. For example:
-   *
-   * ```ts
-   * new HttpParams({fromString: 'angular=awesome'})
-   * ```
-   */
   params;
-  /**
-   * The outgoing URL with all URL parameters set.
-   */
   urlWithParams;
-  /**
-   * The HttpTransferCache option for the request
-   */
   transferCache;
-  /**
-   * The timeout for the backend HTTP request in ms.
-   */
   timeout;
   constructor(method, url, third, fourth) {
     this.url = url;
@@ -6958,6 +6068,9 @@ var HttpRequest = class _HttpRequest {
       if (options.referrer) {
         this.referrer = options.referrer;
       }
+      if (options.referrerPolicy) {
+        this.referrerPolicy = options.referrerPolicy;
+      }
       this.transferCache = options.transferCache;
     }
     this.headers ??= new HttpHeaders();
@@ -6976,10 +6089,6 @@ var HttpRequest = class _HttpRequest {
       }
     }
   }
-  /**
-   * Transform the free-form body into a serialized format suitable for
-   * transmission to the server.
-   */
   serializeBody() {
     if (this.body === null) {
       return null;
@@ -6995,12 +6104,6 @@ var HttpRequest = class _HttpRequest {
     }
     return this.body.toString();
   }
-  /**
-   * Examine the body and attempt to infer an appropriate MIME type
-   * for it.
-   *
-   * If no such type can be inferred, this method will return `null`.
-   */
   detectContentTypeHeader() {
     if (this.body === null) {
       return null;
@@ -7037,6 +6140,7 @@ var HttpRequest = class _HttpRequest {
     const credentials = update.credentials || this.credentials;
     const referrer = update.referrer || this.referrer;
     const integrity = update.integrity || this.integrity;
+    const referrerPolicy = update.referrerPolicy || this.referrerPolicy;
     const transferCache = update.transferCache ?? this.transferCache;
     const timeout = update.timeout ?? this.timeout;
     const body = update.body !== void 0 ? update.body : this.body;
@@ -7067,7 +6171,8 @@ var HttpRequest = class _HttpRequest {
       redirect,
       credentials,
       referrer,
-      integrity
+      integrity,
+      referrerPolicy
     });
   }
 };
@@ -7081,65 +6186,29 @@ var HttpEventType;
   HttpEventType2[HttpEventType2["User"] = 5] = "User";
 })(HttpEventType || (HttpEventType = {}));
 var HttpResponseBase = class {
-  /**
-   * All response headers.
-   */
   headers;
-  /**
-   * Response status code.
-   */
   status;
-  /**
-   * Textual description of response status code, defaults to OK.
-   *
-   * Do not depend on this.
-   */
   statusText;
-  /**
-   * URL of the resource retrieved, or null if not available.
-   */
   url;
-  /**
-   * Whether the status code falls in the 2xx range.
-   */
   ok;
-  /**
-   * Type of the response, narrowed to either the full response or the header.
-   */
   type;
-  /**
-   * Indicates whether the HTTP response was redirected during the request.
-   * This property is only available when using the Fetch API using `withFetch()`
-   * When using the default XHR Request this property will be `undefined`
-   */
   redirected;
-  /**
-   * Super-constructor for all responses.
-   *
-   * The single parameter accepted is an initialization hash. Any properties
-   * of the response passed there will override the default values.
-   */
+  responseType;
   constructor(init, defaultStatus = 200, defaultStatusText = "OK") {
     this.headers = init.headers || new HttpHeaders();
     this.status = init.status !== void 0 ? init.status : defaultStatus;
     this.statusText = init.statusText || defaultStatusText;
     this.url = init.url || null;
     this.redirected = init.redirected;
+    this.responseType = init.responseType;
     this.ok = this.status >= 200 && this.status < 300;
   }
 };
 var HttpHeaderResponse = class _HttpHeaderResponse extends HttpResponseBase {
-  /**
-   * Create a new `HttpHeaderResponse` with the given parameters.
-   */
   constructor(init = {}) {
     super(init);
   }
   type = HttpEventType.ResponseHeader;
-  /**
-   * Copy this `HttpHeaderResponse`, overriding its contents with the
-   * given parameter hash.
-   */
   clone(update = {}) {
     return new _HttpHeaderResponse({
       headers: update.headers || this.headers,
@@ -7150,13 +6219,7 @@ var HttpHeaderResponse = class _HttpHeaderResponse extends HttpResponseBase {
   }
 };
 var HttpResponse = class _HttpResponse extends HttpResponseBase {
-  /**
-   * The response body, or `null` if one was not returned.
-   */
   body;
-  /**
-   * Construct a new `HttpResponse`.
-   */
   constructor(init = {}) {
     super(init);
     this.body = init.body !== void 0 ? init.body : null;
@@ -7169,7 +6232,8 @@ var HttpResponse = class _HttpResponse extends HttpResponseBase {
       status: update.status !== void 0 ? update.status : this.status,
       statusText: update.statusText || this.statusText,
       url: update.url || this.url || void 0,
-      redirected: update.redirected ?? this.redirected
+      redirected: update.redirected ?? this.redirected,
+      responseType: update.responseType ?? this.responseType
     });
   }
 };
@@ -7177,9 +6241,6 @@ var HttpErrorResponse = class extends HttpResponseBase {
   name = "HttpErrorResponse";
   message;
   error;
-  /**
-   * Errors are never okay, even when the status code is in the 2xx success range.
-   */
   ok = false;
   constructor(init) {
     super(init, 0, "Unknown Error");
@@ -7259,258 +6320,9 @@ var HttpStatusCode;
   HttpStatusCode2[HttpStatusCode2["NotExtended"] = 510] = "NotExtended";
   HttpStatusCode2[HttpStatusCode2["NetworkAuthenticationRequired"] = 511] = "NetworkAuthenticationRequired";
 })(HttpStatusCode || (HttpStatusCode = {}));
-function addBody(options, body) {
-  return {
-    body,
-    headers: options.headers,
-    context: options.context,
-    observe: options.observe,
-    params: options.params,
-    reportProgress: options.reportProgress,
-    responseType: options.responseType,
-    withCredentials: options.withCredentials,
-    credentials: options.credentials,
-    transferCache: options.transferCache,
-    timeout: options.timeout,
-    keepalive: options.keepalive,
-    priority: options.priority,
-    cache: options.cache,
-    mode: options.mode,
-    redirect: options.redirect,
-    integrity: options.integrity,
-    referrer: options.referrer
-  };
-}
-var HttpClient = class _HttpClient {
-  handler;
-  constructor(handler) {
-    this.handler = handler;
-  }
-  /**
-   * Constructs an observable for a generic HTTP request that, when subscribed,
-   * fires the request through the chain of registered interceptors and on to the
-   * server.
-   *
-   * You can pass an `HttpRequest` directly as the only parameter. In this case,
-   * the call returns an observable of the raw `HttpEvent` stream.
-   *
-   * Alternatively you can pass an HTTP method as the first parameter,
-   * a URL string as the second, and an options hash containing the request body as the third.
-   * See `addBody()`. In this case, the specified `responseType` and `observe` options determine the
-   * type of returned observable.
-   *   * The `responseType` value determines how a successful response body is parsed.
-   *   * If `responseType` is the default `json`, you can pass a type interface for the resulting
-   * object as a type parameter to the call.
-   *
-   * The `observe` value determines the return type, according to what you are interested in
-   * observing.
-   *   * An `observe` value of events returns an observable of the raw `HttpEvent` stream, including
-   * progress events by default.
-   *   * An `observe` value of response returns an observable of `HttpResponse<T>`,
-   * where the `T` parameter depends on the `responseType` and any optionally provided type
-   * parameter.
-   *   * An `observe` value of body returns an observable of `<T>` with the same `T` body type.
-   *
-   */
-  request(first, url, options = {}) {
-    let req;
-    if (first instanceof HttpRequest) {
-      req = first;
-    } else {
-      let headers = void 0;
-      if (options.headers instanceof HttpHeaders) {
-        headers = options.headers;
-      } else {
-        headers = new HttpHeaders(options.headers);
-      }
-      let params = void 0;
-      if (!!options.params) {
-        if (options.params instanceof HttpParams) {
-          params = options.params;
-        } else {
-          params = new HttpParams({
-            fromObject: options.params
-          });
-        }
-      }
-      req = new HttpRequest(first, url, options.body !== void 0 ? options.body : null, {
-        headers,
-        context: options.context,
-        params,
-        reportProgress: options.reportProgress,
-        // By default, JSON is assumed to be returned for all calls.
-        responseType: options.responseType || "json",
-        withCredentials: options.withCredentials,
-        transferCache: options.transferCache,
-        keepalive: options.keepalive,
-        priority: options.priority,
-        cache: options.cache,
-        mode: options.mode,
-        redirect: options.redirect,
-        credentials: options.credentials,
-        referrer: options.referrer,
-        integrity: options.integrity,
-        timeout: options.timeout
-      });
-    }
-    const events$ = of(req).pipe(concatMap((req2) => this.handler.handle(req2)));
-    if (first instanceof HttpRequest || options.observe === "events") {
-      return events$;
-    }
-    const res$ = events$.pipe(filter((event) => event instanceof HttpResponse));
-    switch (options.observe || "body") {
-      case "body":
-        switch (req.responseType) {
-          case "arraybuffer":
-            return res$.pipe(map((res) => {
-              if (res.body !== null && !(res.body instanceof ArrayBuffer)) {
-                throw new RuntimeError(2806, ngDevMode && "Response is not an ArrayBuffer.");
-              }
-              return res.body;
-            }));
-          case "blob":
-            return res$.pipe(map((res) => {
-              if (res.body !== null && !(res.body instanceof Blob)) {
-                throw new RuntimeError(2807, ngDevMode && "Response is not a Blob.");
-              }
-              return res.body;
-            }));
-          case "text":
-            return res$.pipe(map((res) => {
-              if (res.body !== null && typeof res.body !== "string") {
-                throw new RuntimeError(2808, ngDevMode && "Response is not a string.");
-              }
-              return res.body;
-            }));
-          case "json":
-          default:
-            return res$.pipe(map((res) => res.body));
-        }
-      case "response":
-        return res$;
-      default:
-        throw new RuntimeError(2809, ngDevMode && `Unreachable: unhandled observe type ${options.observe}}`);
-    }
-  }
-  /**
-   * Constructs an observable that, when subscribed, causes the configured
-   * `DELETE` request to execute on the server. See the individual overloads for
-   * details on the return type.
-   *
-   * @param url     The endpoint URL.
-   * @param options The HTTP options to send with the request.
-   *
-   */
-  delete(url, options = {}) {
-    return this.request("DELETE", url, options);
-  }
-  /**
-   * Constructs an observable that, when subscribed, causes the configured
-   * `GET` request to execute on the server. See the individual overloads for
-   * details on the return type.
-   */
-  get(url, options = {}) {
-    return this.request("GET", url, options);
-  }
-  /**
-   * Constructs an observable that, when subscribed, causes the configured
-   * `HEAD` request to execute on the server. The `HEAD` method returns
-   * meta information about the resource without transferring the
-   * resource itself. See the individual overloads for
-   * details on the return type.
-   */
-  head(url, options = {}) {
-    return this.request("HEAD", url, options);
-  }
-  /**
-   * Constructs an `Observable` that, when subscribed, causes a request with the special method
-   * `JSONP` to be dispatched via the interceptor pipeline.
-   * The [JSONP pattern](https://en.wikipedia.org/wiki/JSONP) works around limitations of certain
-   * API endpoints that don't support newer,
-   * and preferable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) protocol.
-   * JSONP treats the endpoint API as a JavaScript file and tricks the browser to process the
-   * requests even if the API endpoint is not located on the same domain (origin) as the client-side
-   * application making the request.
-   * The endpoint API must support JSONP callback for JSONP requests to work.
-   * The resource API returns the JSON response wrapped in a callback function.
-   * You can pass the callback function name as one of the query parameters.
-   * Note that JSONP requests can only be used with `GET` requests.
-   *
-   * @param url The resource URL.
-   * @param callbackParam The callback function name.
-   *
-   */
-  jsonp(url, callbackParam) {
-    return this.request("JSONP", url, {
-      params: new HttpParams().append(callbackParam, "JSONP_CALLBACK"),
-      observe: "body",
-      responseType: "json"
-    });
-  }
-  /**
-   * Constructs an `Observable` that, when subscribed, causes the configured
-   * `OPTIONS` request to execute on the server. This method allows the client
-   * to determine the supported HTTP methods and other capabilities of an endpoint,
-   * without implying a resource action. See the individual overloads for
-   * details on the return type.
-   */
-  options(url, options = {}) {
-    return this.request("OPTIONS", url, options);
-  }
-  /**
-   * Constructs an observable that, when subscribed, causes the configured
-   * `PATCH` request to execute on the server. See the individual overloads for
-   * details on the return type.
-   */
-  patch(url, body, options = {}) {
-    return this.request("PATCH", url, addBody(options, body));
-  }
-  /**
-   * Constructs an observable that, when subscribed, causes the configured
-   * `POST` request to execute on the server. The server responds with the location of
-   * the replaced resource. See the individual overloads for
-   * details on the return type.
-   */
-  post(url, body, options = {}) {
-    return this.request("POST", url, addBody(options, body));
-  }
-  /**
-   * Constructs an observable that, when subscribed, causes the configured
-   * `PUT` request to execute on the server. The `PUT` method replaces an existing resource
-   * with a new set of values.
-   * See the individual overloads for details on the return type.
-   */
-  put(url, body, options = {}) {
-    return this.request("PUT", url, addBody(options, body));
-  }
-  static ɵfac = function HttpClient_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _HttpClient)(ɵɵinject(HttpHandler));
-  };
-  static ɵprov = ɵɵdefineInjectable({
-    token: _HttpClient,
-    factory: _HttpClient.ɵfac
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpClient, [{
-    type: Injectable
-  }], () => [{
-    type: HttpHandler
-  }], null);
-})();
 var XSSI_PREFIX$1 = /^\)\]\}',?\n/;
-function getResponseUrl$1(response) {
-  if (response.url) {
-    return response.url;
-  }
-  const xRequestUrl = X_REQUEST_URL_HEADER.toLocaleLowerCase();
-  return response.headers.get(xRequestUrl);
-}
 var FETCH_BACKEND = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "FETCH_BACKEND" : "");
 var FetchBackend = class _FetchBackend {
-  // We use an arrow function to always reference the current global implementation of `fetch`.
-  // This is helpful for cases when the global `fetch` implementation is modified by external code,
-  // see https://github.com/angular/angular/issues/57527.
   fetchImpl = inject(FetchFactory, {
     optional: true
   })?.fetch ?? ((...args) => globalThis.fetch(...args));
@@ -7563,7 +6375,7 @@ var FetchBackend = class _FetchBackend {
       }
       const headers = new HttpHeaders(response.headers);
       const statusText = response.statusText;
-      const url = getResponseUrl$1(response) ?? request.urlWithParams;
+      const url = response.url || request.urlWithParams;
       let status = response.status;
       let body = null;
       if (request.reportProgress) {
@@ -7627,7 +6439,7 @@ var FetchBackend = class _FetchBackend {
             headers: new HttpHeaders(response.headers),
             status: response.status,
             statusText: response.statusText,
-            url: getResponseUrl$1(response) ?? request.urlWithParams
+            url: response.url || request.urlWithParams
           }));
           return;
         }
@@ -7637,6 +6449,7 @@ var FetchBackend = class _FetchBackend {
       }
       const ok = status >= 200 && status < 300;
       const redirected = response.redirected;
+      const responseType = response.type;
       if (ok) {
         observer.next(new HttpResponse({
           body,
@@ -7644,7 +6457,8 @@ var FetchBackend = class _FetchBackend {
           status,
           statusText,
           url,
-          redirected
+          redirected,
+          responseType
         }));
         observer.complete();
       } else {
@@ -7654,7 +6468,8 @@ var FetchBackend = class _FetchBackend {
           status,
           statusText,
           url,
-          redirected
+          redirected,
+          responseType
         }));
       }
     });
@@ -7713,7 +6528,8 @@ var FetchBackend = class _FetchBackend {
       mode: req.mode,
       redirect: req.redirect,
       referrer: req.referrer,
-      integrity: req.integrity
+      integrity: req.integrity,
+      referrerPolicy: req.referrerPolicy
     };
   }
   concatChunks(chunks, totalLength) {
@@ -7750,6 +6566,260 @@ function warningOptionsMessage(req) {
 function silenceSuperfluousUnhandledPromiseRejection(promise) {
   promise.then(noop, noop);
 }
+var XSSI_PREFIX = /^\)\]\}',?\n/;
+function validateXhrCompatibility(req) {
+  const unsupportedOptions = [{
+    property: "keepalive",
+    errorCode: 2813
+  }, {
+    property: "cache",
+    errorCode: 2814
+  }, {
+    property: "priority",
+    errorCode: 2815
+  }, {
+    property: "mode",
+    errorCode: 2816
+  }, {
+    property: "redirect",
+    errorCode: 2817
+  }, {
+    property: "credentials",
+    errorCode: 2818
+  }, {
+    property: "integrity",
+    errorCode: 2820
+  }, {
+    property: "referrer",
+    errorCode: 2821
+  }, {
+    property: "referrerPolicy",
+    errorCode: 2823
+  }];
+  for (const {
+    property,
+    errorCode
+  } of unsupportedOptions) {
+    if (req[property]) {
+      console.warn(formatRuntimeError(errorCode, `Angular detected that a \`HttpClient\` request with the \`${property}\` option was sent using XHR, which does not support it. To use the \`${property}\` option, enable Fetch API support by passing \`withFetch()\` as an argument to \`provideHttpClient()\`.`));
+    }
+  }
+}
+var HttpXhrBackend = class _HttpXhrBackend {
+  xhrFactory;
+  tracingService = inject(TracingService, {
+    optional: true
+  });
+  constructor(xhrFactory) {
+    this.xhrFactory = xhrFactory;
+  }
+  maybePropagateTrace(fn) {
+    return this.tracingService?.propagate ? this.tracingService.propagate(fn) : fn;
+  }
+  handle(req) {
+    if (req.method === "JSONP") {
+      throw new RuntimeError(-2800, (typeof ngDevMode === "undefined" || ngDevMode) && `Cannot make a JSONP request without JSONP support. To fix the problem, either add the \`withJsonpSupport()\` call (if \`provideHttpClient()\` is used) or import the \`HttpClientJsonpModule\` in the root NgModule.`);
+    }
+    ngDevMode && validateXhrCompatibility(req);
+    const xhrFactory = this.xhrFactory;
+    const source = false ? from(xhrFactory.ɵloadImpl()) : of(null);
+    return source.pipe(switchMap(() => {
+      return new Observable((observer) => {
+        const xhr = xhrFactory.build();
+        xhr.open(req.method, req.urlWithParams);
+        if (req.withCredentials) {
+          xhr.withCredentials = true;
+        }
+        req.headers.forEach((name, values) => xhr.setRequestHeader(name, values.join(",")));
+        if (!req.headers.has(ACCEPT_HEADER)) {
+          xhr.setRequestHeader(ACCEPT_HEADER, ACCEPT_HEADER_VALUE);
+        }
+        if (!req.headers.has(CONTENT_TYPE_HEADER)) {
+          const detectedType = req.detectContentTypeHeader();
+          if (detectedType !== null) {
+            xhr.setRequestHeader(CONTENT_TYPE_HEADER, detectedType);
+          }
+        }
+        if (req.timeout) {
+          xhr.timeout = req.timeout;
+        }
+        if (req.responseType) {
+          const responseType = req.responseType.toLowerCase();
+          xhr.responseType = responseType !== "json" ? responseType : "text";
+        }
+        const reqBody = req.serializeBody();
+        let headerResponse = null;
+        const partialFromXhr = () => {
+          if (headerResponse !== null) {
+            return headerResponse;
+          }
+          const statusText = xhr.statusText || "OK";
+          const headers = new HttpHeaders(xhr.getAllResponseHeaders());
+          const url = xhr.responseURL || req.url;
+          headerResponse = new HttpHeaderResponse({
+            headers,
+            status: xhr.status,
+            statusText,
+            url
+          });
+          return headerResponse;
+        };
+        const onLoad = this.maybePropagateTrace(() => {
+          let {
+            headers,
+            status,
+            statusText,
+            url
+          } = partialFromXhr();
+          let body = null;
+          if (status !== HTTP_STATUS_CODE_NO_CONTENT) {
+            body = typeof xhr.response === "undefined" ? xhr.responseText : xhr.response;
+          }
+          if (status === 0) {
+            status = !!body ? HTTP_STATUS_CODE_OK : 0;
+          }
+          let ok = status >= 200 && status < 300;
+          if (req.responseType === "json" && typeof body === "string") {
+            const originalBody = body;
+            body = body.replace(XSSI_PREFIX, "");
+            try {
+              body = body !== "" ? JSON.parse(body) : null;
+            } catch (error) {
+              body = originalBody;
+              if (ok) {
+                ok = false;
+                body = {
+                  error,
+                  text: body
+                };
+              }
+            }
+          }
+          if (ok) {
+            observer.next(new HttpResponse({
+              body,
+              headers,
+              status,
+              statusText,
+              url: url || void 0
+            }));
+            observer.complete();
+          } else {
+            observer.error(new HttpErrorResponse({
+              error: body,
+              headers,
+              status,
+              statusText,
+              url: url || void 0
+            }));
+          }
+        });
+        const onError = this.maybePropagateTrace((error) => {
+          const {
+            url
+          } = partialFromXhr();
+          const res = new HttpErrorResponse({
+            error,
+            status: xhr.status || 0,
+            statusText: xhr.statusText || "Unknown Error",
+            url: url || void 0
+          });
+          observer.error(res);
+        });
+        let onTimeout = onError;
+        if (req.timeout) {
+          onTimeout = this.maybePropagateTrace((_) => {
+            const {
+              url
+            } = partialFromXhr();
+            const res = new HttpErrorResponse({
+              error: new DOMException("Request timed out", "TimeoutError"),
+              status: xhr.status || 0,
+              statusText: xhr.statusText || "Request timeout",
+              url: url || void 0
+            });
+            observer.error(res);
+          });
+        }
+        let sentHeaders = false;
+        const onDownProgress = this.maybePropagateTrace((event) => {
+          if (!sentHeaders) {
+            observer.next(partialFromXhr());
+            sentHeaders = true;
+          }
+          let progressEvent = {
+            type: HttpEventType.DownloadProgress,
+            loaded: event.loaded
+          };
+          if (event.lengthComputable) {
+            progressEvent.total = event.total;
+          }
+          if (req.responseType === "text" && !!xhr.responseText) {
+            progressEvent.partialText = xhr.responseText;
+          }
+          observer.next(progressEvent);
+        });
+        const onUpProgress = this.maybePropagateTrace((event) => {
+          let progress = {
+            type: HttpEventType.UploadProgress,
+            loaded: event.loaded
+          };
+          if (event.lengthComputable) {
+            progress.total = event.total;
+          }
+          observer.next(progress);
+        });
+        xhr.addEventListener("load", onLoad);
+        xhr.addEventListener("error", onError);
+        xhr.addEventListener("timeout", onTimeout);
+        xhr.addEventListener("abort", onError);
+        if (req.reportProgress) {
+          xhr.addEventListener("progress", onDownProgress);
+          if (reqBody !== null && xhr.upload) {
+            xhr.upload.addEventListener("progress", onUpProgress);
+          }
+        }
+        xhr.send(reqBody);
+        observer.next({
+          type: HttpEventType.Sent
+        });
+        return () => {
+          xhr.removeEventListener("error", onError);
+          xhr.removeEventListener("abort", onError);
+          xhr.removeEventListener("load", onLoad);
+          xhr.removeEventListener("timeout", onTimeout);
+          if (req.reportProgress) {
+            xhr.removeEventListener("progress", onDownProgress);
+            if (reqBody !== null && xhr.upload) {
+              xhr.upload.removeEventListener("progress", onUpProgress);
+            }
+          }
+          if (xhr.readyState !== xhr.DONE) {
+            xhr.abort();
+          }
+        };
+      });
+    }));
+  }
+  static ɵfac = function HttpXhrBackend_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _HttpXhrBackend)(ɵɵinject(XhrFactory));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _HttpXhrBackend,
+    factory: _HttpXhrBackend.ɵfac,
+    providedIn: "root"
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXhrBackend, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [{
+    type: XhrFactory
+  }], null);
+})();
 function interceptorChainEndFn(req, finalHandlerFn) {
   return finalHandlerFn(req);
 }
@@ -7761,11 +6831,12 @@ function adaptLegacyInterceptorToChain(chainTailFn, interceptor) {
 function chainedInterceptorFn(chainTailFn, interceptorFn, injector) {
   return (initialRequest, finalHandlerFn) => runInInjectionContext(injector, () => interceptorFn(initialRequest, (downstreamRequest) => chainTailFn(downstreamRequest, finalHandlerFn)));
 }
-var HTTP_INTERCEPTORS = new InjectionToken(ngDevMode ? "HTTP_INTERCEPTORS" : "");
-var HTTP_INTERCEPTOR_FNS = new InjectionToken(ngDevMode ? "HTTP_INTERCEPTOR_FNS" : "");
-var HTTP_ROOT_INTERCEPTOR_FNS = new InjectionToken(ngDevMode ? "HTTP_ROOT_INTERCEPTOR_FNS" : "");
-var REQUESTS_CONTRIBUTE_TO_STABILITY = new InjectionToken(ngDevMode ? "REQUESTS_CONTRIBUTE_TO_STABILITY" : "", {
-  providedIn: "root",
+var HTTP_INTERCEPTORS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "HTTP_INTERCEPTORS" : "");
+var HTTP_INTERCEPTOR_FNS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "HTTP_INTERCEPTOR_FNS" : "", {
+  factory: () => []
+});
+var HTTP_ROOT_INTERCEPTOR_FNS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "HTTP_ROOT_INTERCEPTOR_FNS" : "");
+var REQUESTS_CONTRIBUTE_TO_STABILITY = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "REQUESTS_CONTRIBUTE_TO_STABILITY" : "", {
   factory: () => true
 });
 function legacyInterceptorFnFactory() {
@@ -7787,15 +6858,41 @@ function legacyInterceptorFnFactory() {
     }
   };
 }
+var HttpBackend = class _HttpBackend {
+  static ɵfac = function HttpBackend_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _HttpBackend)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _HttpBackend,
+    factory: function HttpBackend_Factory(__ngFactoryType__) {
+      let __ngConditionalFactory__ = null;
+      if (__ngFactoryType__) {
+        __ngConditionalFactory__ = new (__ngFactoryType__ || _HttpBackend)();
+      } else {
+        __ngConditionalFactory__ = ɵɵinject(HttpXhrBackend);
+      }
+      return __ngConditionalFactory__;
+    },
+    providedIn: "root"
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpBackend, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root",
+      useExisting: HttpXhrBackend
+    }]
+  }], null, null);
+})();
 var fetchBackendWarningDisplayed = false;
-var HttpInterceptorHandler = class _HttpInterceptorHandler extends HttpHandler {
+var HttpInterceptorHandler = class _HttpInterceptorHandler {
   backend;
   injector;
   chain = null;
   pendingTasks = inject(PendingTasks);
   contributeToStability = inject(REQUESTS_CONTRIBUTE_TO_STABILITY);
   constructor(backend, injector) {
-    super();
     this.backend = backend;
     this.injector = injector;
     if ((typeof ngDevMode === "undefined" || ngDevMode) && !fetchBackendWarningDisplayed) {
@@ -7823,16 +6920,202 @@ var HttpInterceptorHandler = class _HttpInterceptorHandler extends HttpHandler {
   };
   static ɵprov = ɵɵdefineInjectable({
     token: _HttpInterceptorHandler,
-    factory: _HttpInterceptorHandler.ɵfac
+    factory: _HttpInterceptorHandler.ɵfac,
+    providedIn: "root"
   });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpInterceptorHandler, [{
-    type: Injectable
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
   }], () => [{
     type: HttpBackend
   }, {
     type: EnvironmentInjector
+  }], null);
+})();
+var HttpHandler = class _HttpHandler {
+  static ɵfac = function HttpHandler_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _HttpHandler)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _HttpHandler,
+    factory: function HttpHandler_Factory(__ngFactoryType__) {
+      let __ngConditionalFactory__ = null;
+      if (__ngFactoryType__) {
+        __ngConditionalFactory__ = new (__ngFactoryType__ || _HttpHandler)();
+      } else {
+        __ngConditionalFactory__ = ɵɵinject(HttpInterceptorHandler);
+      }
+      return __ngConditionalFactory__;
+    },
+    providedIn: "root"
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpHandler, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root",
+      useExisting: HttpInterceptorHandler
+    }]
+  }], null, null);
+})();
+function addBody(options, body) {
+  return {
+    body,
+    headers: options.headers,
+    context: options.context,
+    observe: options.observe,
+    params: options.params,
+    reportProgress: options.reportProgress,
+    responseType: options.responseType,
+    withCredentials: options.withCredentials,
+    credentials: options.credentials,
+    transferCache: options.transferCache,
+    timeout: options.timeout,
+    keepalive: options.keepalive,
+    priority: options.priority,
+    cache: options.cache,
+    mode: options.mode,
+    redirect: options.redirect,
+    integrity: options.integrity,
+    referrer: options.referrer,
+    referrerPolicy: options.referrerPolicy
+  };
+}
+var HttpClient = class _HttpClient {
+  handler;
+  constructor(handler) {
+    this.handler = handler;
+  }
+  request(first, url, options = {}) {
+    let req;
+    if (first instanceof HttpRequest) {
+      req = first;
+    } else {
+      let headers = void 0;
+      if (options.headers instanceof HttpHeaders) {
+        headers = options.headers;
+      } else {
+        headers = new HttpHeaders(options.headers);
+      }
+      let params = void 0;
+      if (!!options.params) {
+        if (options.params instanceof HttpParams) {
+          params = options.params;
+        } else {
+          params = new HttpParams({
+            fromObject: options.params
+          });
+        }
+      }
+      req = new HttpRequest(first, url, options.body !== void 0 ? options.body : null, {
+        headers,
+        context: options.context,
+        params,
+        reportProgress: options.reportProgress,
+        responseType: options.responseType || "json",
+        withCredentials: options.withCredentials,
+        transferCache: options.transferCache,
+        keepalive: options.keepalive,
+        priority: options.priority,
+        cache: options.cache,
+        mode: options.mode,
+        redirect: options.redirect,
+        credentials: options.credentials,
+        referrer: options.referrer,
+        referrerPolicy: options.referrerPolicy,
+        integrity: options.integrity,
+        timeout: options.timeout
+      });
+    }
+    const events$ = of(req).pipe(concatMap((req2) => this.handler.handle(req2)));
+    if (first instanceof HttpRequest || options.observe === "events") {
+      return events$;
+    }
+    const res$ = events$.pipe(filter((event) => event instanceof HttpResponse));
+    switch (options.observe || "body") {
+      case "body":
+        switch (req.responseType) {
+          case "arraybuffer":
+            return res$.pipe(map((res) => {
+              if (res.body !== null && !(res.body instanceof ArrayBuffer)) {
+                throw new RuntimeError(2806, ngDevMode && "Response is not an ArrayBuffer.");
+              }
+              return res.body;
+            }));
+          case "blob":
+            return res$.pipe(map((res) => {
+              if (res.body !== null && !(res.body instanceof Blob)) {
+                throw new RuntimeError(2807, ngDevMode && "Response is not a Blob.");
+              }
+              return res.body;
+            }));
+          case "text":
+            return res$.pipe(map((res) => {
+              if (res.body !== null && typeof res.body !== "string") {
+                throw new RuntimeError(2808, ngDevMode && "Response is not a string.");
+              }
+              return res.body;
+            }));
+          case "json":
+          default:
+            return res$.pipe(map((res) => res.body));
+        }
+      case "response":
+        return res$;
+      default:
+        throw new RuntimeError(2809, ngDevMode && `Unreachable: unhandled observe type ${options.observe}}`);
+    }
+  }
+  delete(url, options = {}) {
+    return this.request("DELETE", url, options);
+  }
+  get(url, options = {}) {
+    return this.request("GET", url, options);
+  }
+  head(url, options = {}) {
+    return this.request("HEAD", url, options);
+  }
+  jsonp(url, callbackParam) {
+    return this.request("JSONP", url, {
+      params: new HttpParams().append(callbackParam, "JSONP_CALLBACK"),
+      observe: "body",
+      responseType: "json"
+    });
+  }
+  options(url, options = {}) {
+    return this.request("OPTIONS", url, options);
+  }
+  patch(url, body, options = {}) {
+    return this.request("PATCH", url, addBody(options, body));
+  }
+  post(url, body, options = {}) {
+    return this.request("POST", url, addBody(options, body));
+  }
+  put(url, body, options = {}) {
+    return this.request("PUT", url, addBody(options, body));
+  }
+  static ɵfac = function HttpClient_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _HttpClient)(ɵɵinject(HttpHandler));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _HttpClient,
+    factory: _HttpClient.ɵfac,
+    providedIn: "root"
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpClient, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [{
+    type: HttpHandler
   }], null);
 })();
 var nextRequestId = 0;
@@ -7852,26 +7135,14 @@ function jsonpCallbackContext() {
 var JsonpClientBackend = class _JsonpClientBackend {
   callbackMap;
   document;
-  /**
-   * A resolved promise that can be used to schedule microtasks in the event handlers.
-   */
   resolvedPromise = Promise.resolve();
   constructor(callbackMap, document2) {
     this.callbackMap = callbackMap;
     this.document = document2;
   }
-  /**
-   * Get the name of the next callback method, by incrementing the global `nextRequestId`.
-   */
   nextCallback() {
     return `ng_jsonp_callback_${nextRequestId++}`;
   }
-  /**
-   * Processes a JSONP request and returns an event stream of the results.
-   * @param req The request object.
-   * @returns An observable of the response events.
-   *
-   */
   handle(req) {
     if (req.method !== "JSONP") {
       throw new RuntimeError(2810, ngDevMode && JSONP_ERR_WRONG_METHOD);
@@ -7979,13 +7250,6 @@ var JsonpInterceptor = class _JsonpInterceptor {
   constructor(injector) {
     this.injector = injector;
   }
-  /**
-   * Identifies and handles a given JSONP request.
-   * @param initialRequest The outgoing request object to handle.
-   * @param next The next interceptor in the chain, or the backend
-   * if no interceptors remain in the chain.
-   * @returns An observable of the event stream.
-   */
   intercept(initialRequest, next) {
     return runInInjectionContext(this.injector, () => jsonpInterceptorFn(initialRequest, (downstreamRequest) => next.handle(downstreamRequest)));
   }
@@ -8004,304 +7268,23 @@ var JsonpInterceptor = class _JsonpInterceptor {
     type: EnvironmentInjector
   }], null);
 })();
-var XSSI_PREFIX = /^\)\]\}',?\n/;
-var X_REQUEST_URL_REGEXP = RegExp(`^${X_REQUEST_URL_HEADER}:`, "m");
-function getResponseUrl(xhr) {
-  if ("responseURL" in xhr && xhr.responseURL) {
-    return xhr.responseURL;
-  }
-  if (X_REQUEST_URL_REGEXP.test(xhr.getAllResponseHeaders())) {
-    return xhr.getResponseHeader(X_REQUEST_URL_HEADER);
-  }
-  return null;
-}
-function validateXhrCompatibility(req) {
-  const unsupportedOptions = [{
-    property: "keepalive",
-    errorCode: 2813
-    /* RuntimeErrorCode.KEEPALIVE_NOT_SUPPORTED_WITH_XHR */
-  }, {
-    property: "cache",
-    errorCode: 2814
-    /* RuntimeErrorCode.CACHE_NOT_SUPPORTED_WITH_XHR */
-  }, {
-    property: "priority",
-    errorCode: 2815
-    /* RuntimeErrorCode.PRIORITY_NOT_SUPPORTED_WITH_XHR */
-  }, {
-    property: "mode",
-    errorCode: 2816
-    /* RuntimeErrorCode.MODE_NOT_SUPPORTED_WITH_XHR */
-  }, {
-    property: "redirect",
-    errorCode: 2817
-    /* RuntimeErrorCode.REDIRECT_NOT_SUPPORTED_WITH_XHR */
-  }, {
-    property: "credentials",
-    errorCode: 2818
-    /* RuntimeErrorCode.CREDENTIALS_NOT_SUPPORTED_WITH_XHR */
-  }, {
-    property: "integrity",
-    errorCode: 2820
-    /* RuntimeErrorCode.INTEGRITY_NOT_SUPPORTED_WITH_XHR */
-  }, {
-    property: "referrer",
-    errorCode: 2821
-    /* RuntimeErrorCode.REFERRER_NOT_SUPPORTED_WITH_XHR */
-  }];
-  for (const {
-    property,
-    errorCode
-  } of unsupportedOptions) {
-    if (req[property]) {
-      console.warn(formatRuntimeError(errorCode, `Angular detected that a \`HttpClient\` request with the \`${property}\` option was sent using XHR, which does not support it. To use the \`${property}\` option, enable Fetch API support by passing \`withFetch()\` as an argument to \`provideHttpClient()\`.`));
-    }
-  }
-}
-var HttpXhrBackend = class _HttpXhrBackend {
-  xhrFactory;
-  constructor(xhrFactory) {
-    this.xhrFactory = xhrFactory;
-  }
-  /**
-   * Processes a request and returns a stream of response events.
-   * @param req The request object.
-   * @returns An observable of the response events.
-   */
-  handle(req) {
-    if (req.method === "JSONP") {
-      throw new RuntimeError(-2800, (typeof ngDevMode === "undefined" || ngDevMode) && `Cannot make a JSONP request without JSONP support. To fix the problem, either add the \`withJsonpSupport()\` call (if \`provideHttpClient()\` is used) or import the \`HttpClientJsonpModule\` in the root NgModule.`);
-    }
-    ngDevMode && validateXhrCompatibility(req);
-    const xhrFactory = this.xhrFactory;
-    const source = (
-      // Note that `ɵloadImpl` is never defined in client bundles and can be
-      // safely dropped whenever we're running in the browser.
-      // This branching is redundant.
-      // The `ngServerMode` guard also enables tree-shaking of the `from()`
-      // function from the common bundle, as it's only used in server code.
-      false ? from(xhrFactory.ɵloadImpl()) : of(null)
-    );
-    return source.pipe(switchMap(() => {
-      return new Observable((observer) => {
-        const xhr = xhrFactory.build();
-        xhr.open(req.method, req.urlWithParams);
-        if (req.withCredentials) {
-          xhr.withCredentials = true;
-        }
-        req.headers.forEach((name, values) => xhr.setRequestHeader(name, values.join(",")));
-        if (!req.headers.has(ACCEPT_HEADER)) {
-          xhr.setRequestHeader(ACCEPT_HEADER, ACCEPT_HEADER_VALUE);
-        }
-        if (!req.headers.has(CONTENT_TYPE_HEADER)) {
-          const detectedType = req.detectContentTypeHeader();
-          if (detectedType !== null) {
-            xhr.setRequestHeader(CONTENT_TYPE_HEADER, detectedType);
-          }
-        }
-        if (req.timeout) {
-          xhr.timeout = req.timeout;
-        }
-        if (req.responseType) {
-          const responseType = req.responseType.toLowerCase();
-          xhr.responseType = responseType !== "json" ? responseType : "text";
-        }
-        const reqBody = req.serializeBody();
-        let headerResponse = null;
-        const partialFromXhr = () => {
-          if (headerResponse !== null) {
-            return headerResponse;
-          }
-          const statusText = xhr.statusText || "OK";
-          const headers = new HttpHeaders(xhr.getAllResponseHeaders());
-          const url = getResponseUrl(xhr) || req.url;
-          headerResponse = new HttpHeaderResponse({
-            headers,
-            status: xhr.status,
-            statusText,
-            url
-          });
-          return headerResponse;
-        };
-        const onLoad = () => {
-          let {
-            headers,
-            status,
-            statusText,
-            url
-          } = partialFromXhr();
-          let body = null;
-          if (status !== HTTP_STATUS_CODE_NO_CONTENT) {
-            body = typeof xhr.response === "undefined" ? xhr.responseText : xhr.response;
-          }
-          if (status === 0) {
-            status = !!body ? HTTP_STATUS_CODE_OK : 0;
-          }
-          let ok = status >= 200 && status < 300;
-          if (req.responseType === "json" && typeof body === "string") {
-            const originalBody = body;
-            body = body.replace(XSSI_PREFIX, "");
-            try {
-              body = body !== "" ? JSON.parse(body) : null;
-            } catch (error) {
-              body = originalBody;
-              if (ok) {
-                ok = false;
-                body = {
-                  error,
-                  text: body
-                };
-              }
-            }
-          }
-          if (ok) {
-            observer.next(new HttpResponse({
-              body,
-              headers,
-              status,
-              statusText,
-              url: url || void 0
-            }));
-            observer.complete();
-          } else {
-            observer.error(new HttpErrorResponse({
-              // The error in this case is the response body (error from the server).
-              error: body,
-              headers,
-              status,
-              statusText,
-              url: url || void 0
-            }));
-          }
-        };
-        const onError = (error) => {
-          const {
-            url
-          } = partialFromXhr();
-          const res = new HttpErrorResponse({
-            error,
-            status: xhr.status || 0,
-            statusText: xhr.statusText || "Unknown Error",
-            url: url || void 0
-          });
-          observer.error(res);
-        };
-        let onTimeout = onError;
-        if (req.timeout) {
-          onTimeout = (_) => {
-            const {
-              url
-            } = partialFromXhr();
-            const res = new HttpErrorResponse({
-              error: new DOMException("Request timed out", "TimeoutError"),
-              status: xhr.status || 0,
-              statusText: xhr.statusText || "Request timeout",
-              url: url || void 0
-            });
-            observer.error(res);
-          };
-        }
-        let sentHeaders = false;
-        const onDownProgress = (event) => {
-          if (!sentHeaders) {
-            observer.next(partialFromXhr());
-            sentHeaders = true;
-          }
-          let progressEvent = {
-            type: HttpEventType.DownloadProgress,
-            loaded: event.loaded
-          };
-          if (event.lengthComputable) {
-            progressEvent.total = event.total;
-          }
-          if (req.responseType === "text" && !!xhr.responseText) {
-            progressEvent.partialText = xhr.responseText;
-          }
-          observer.next(progressEvent);
-        };
-        const onUpProgress = (event) => {
-          let progress = {
-            type: HttpEventType.UploadProgress,
-            loaded: event.loaded
-          };
-          if (event.lengthComputable) {
-            progress.total = event.total;
-          }
-          observer.next(progress);
-        };
-        xhr.addEventListener("load", onLoad);
-        xhr.addEventListener("error", onError);
-        xhr.addEventListener("timeout", onTimeout);
-        xhr.addEventListener("abort", onError);
-        if (req.reportProgress) {
-          xhr.addEventListener("progress", onDownProgress);
-          if (reqBody !== null && xhr.upload) {
-            xhr.upload.addEventListener("progress", onUpProgress);
-          }
-        }
-        xhr.send(reqBody);
-        observer.next({
-          type: HttpEventType.Sent
-        });
-        return () => {
-          xhr.removeEventListener("error", onError);
-          xhr.removeEventListener("abort", onError);
-          xhr.removeEventListener("load", onLoad);
-          xhr.removeEventListener("timeout", onTimeout);
-          if (req.reportProgress) {
-            xhr.removeEventListener("progress", onDownProgress);
-            if (reqBody !== null && xhr.upload) {
-              xhr.upload.removeEventListener("progress", onUpProgress);
-            }
-          }
-          if (xhr.readyState !== xhr.DONE) {
-            xhr.abort();
-          }
-        };
-      });
-    }));
-  }
-  static ɵfac = function HttpXhrBackend_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _HttpXhrBackend)(ɵɵinject(XhrFactory));
-  };
-  static ɵprov = ɵɵdefineInjectable({
-    token: _HttpXhrBackend,
-    factory: _HttpXhrBackend.ɵfac
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXhrBackend, [{
-    type: Injectable
-  }], () => [{
-    type: XhrFactory
-  }], null);
-})();
-var XSRF_ENABLED = new InjectionToken(ngDevMode ? "XSRF_ENABLED" : "");
+var XSRF_ENABLED = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "XSRF_ENABLED" : "", {
+  factory: () => true
+});
 var XSRF_DEFAULT_COOKIE_NAME = "XSRF-TOKEN";
-var XSRF_COOKIE_NAME = new InjectionToken(ngDevMode ? "XSRF_COOKIE_NAME" : "", {
-  providedIn: "root",
+var XSRF_COOKIE_NAME = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "XSRF_COOKIE_NAME" : "", {
   factory: () => XSRF_DEFAULT_COOKIE_NAME
 });
 var XSRF_DEFAULT_HEADER_NAME = "X-XSRF-TOKEN";
-var XSRF_HEADER_NAME = new InjectionToken(ngDevMode ? "XSRF_HEADER_NAME" : "", {
-  providedIn: "root",
+var XSRF_HEADER_NAME = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "XSRF_HEADER_NAME" : "", {
   factory: () => XSRF_DEFAULT_HEADER_NAME
 });
-var HttpXsrfTokenExtractor = class {
-};
 var HttpXsrfCookieExtractor = class _HttpXsrfCookieExtractor {
-  doc;
-  cookieName;
+  cookieName = inject(XSRF_COOKIE_NAME);
+  doc = inject(DOCUMENT);
   lastCookieString = "";
   lastToken = null;
-  /**
-   * @internal for testing
-   */
   parseCount = 0;
-  constructor(doc, cookieName) {
-    this.doc = doc;
-    this.cookieName = cookieName;
-  }
   getToken() {
     if (false) {
       return null;
@@ -8315,33 +7298,65 @@ var HttpXsrfCookieExtractor = class _HttpXsrfCookieExtractor {
     return this.lastToken;
   }
   static ɵfac = function HttpXsrfCookieExtractor_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _HttpXsrfCookieExtractor)(ɵɵinject(DOCUMENT), ɵɵinject(XSRF_COOKIE_NAME));
+    return new (__ngFactoryType__ || _HttpXsrfCookieExtractor)();
   };
   static ɵprov = ɵɵdefineInjectable({
     token: _HttpXsrfCookieExtractor,
-    factory: _HttpXsrfCookieExtractor.ɵfac
+    factory: _HttpXsrfCookieExtractor.ɵfac,
+    providedIn: "root"
   });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXsrfCookieExtractor, [{
-    type: Injectable
-  }], () => [{
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [DOCUMENT]
+    type: Injectable,
+    args: [{
+      providedIn: "root"
     }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [XSRF_COOKIE_NAME]
-    }]
-  }], null);
+  }], null, null);
 })();
-var ABSOLUTE_URL_REGEX = /^(?:https?:)?\/\//i;
+var HttpXsrfTokenExtractor = class _HttpXsrfTokenExtractor {
+  static ɵfac = function HttpXsrfTokenExtractor_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _HttpXsrfTokenExtractor)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _HttpXsrfTokenExtractor,
+    factory: function HttpXsrfTokenExtractor_Factory(__ngFactoryType__) {
+      let __ngConditionalFactory__ = null;
+      if (__ngFactoryType__) {
+        __ngConditionalFactory__ = new (__ngFactoryType__ || _HttpXsrfTokenExtractor)();
+      } else {
+        __ngConditionalFactory__ = ɵɵinject(HttpXsrfCookieExtractor);
+      }
+      return __ngConditionalFactory__;
+    },
+    providedIn: "root"
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXsrfTokenExtractor, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root",
+      useExisting: HttpXsrfCookieExtractor
+    }]
+  }], null, null);
+})();
 function xsrfInterceptorFn(req, next) {
-  if (!inject(XSRF_ENABLED) || req.method === "GET" || req.method === "HEAD" || ABSOLUTE_URL_REGEX.test(req.url)) {
+  if (!inject(XSRF_ENABLED) || req.method === "GET" || req.method === "HEAD") {
+    return next(req);
+  }
+  try {
+    const locationHref = inject(PlatformLocation).href;
+    const {
+      origin: locationOrigin
+    } = new URL(locationHref);
+    const {
+      origin: requestOrigin
+    } = new URL(req.url, locationOrigin);
+    if (locationOrigin !== requestOrigin) {
+      return next(req);
+    }
+  } catch (e) {
     return next(req);
   }
   const token = inject(HttpXsrfTokenExtractor).getToken();
@@ -8354,15 +7369,12 @@ function xsrfInterceptorFn(req, next) {
   return next(req);
 }
 var HttpXsrfInterceptor = class _HttpXsrfInterceptor {
-  injector;
-  constructor(injector) {
-    this.injector = injector;
-  }
+  injector = inject(EnvironmentInjector);
   intercept(initialRequest, next) {
     return runInInjectionContext(this.injector, () => xsrfInterceptorFn(initialRequest, (downstreamRequest) => next.handle(downstreamRequest)));
   }
   static ɵfac = function HttpXsrfInterceptor_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _HttpXsrfInterceptor)(ɵɵinject(EnvironmentInjector));
+    return new (__ngFactoryType__ || _HttpXsrfInterceptor)();
   };
   static ɵprov = ɵɵdefineInjectable({
     token: _HttpXsrfInterceptor,
@@ -8372,9 +7384,7 @@ var HttpXsrfInterceptor = class _HttpXsrfInterceptor {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXsrfInterceptor, [{
     type: Injectable
-  }], () => [{
-    type: EnvironmentInjector
-  }], null);
+  }], null, null);
 })();
 var HttpFeatureKind;
 (function(HttpFeatureKind2) {
@@ -8399,7 +7409,7 @@ function provideHttpClient(...features) {
       throw new Error(ngDevMode ? `Configuration error: found both withXsrfConfiguration() and withNoXsrfProtection() in the same call to provideHttpClient(), which is a contradiction.` : "");
     }
   }
-  const providers = [HttpClient, HttpXhrBackend, HttpInterceptorHandler, {
+  const providers = [HttpClient, HttpInterceptorHandler, {
     provide: HttpHandler,
     useExisting: HttpInterceptorHandler
   }, {
@@ -8413,19 +7423,13 @@ function provideHttpClient(...features) {
     provide: HTTP_INTERCEPTOR_FNS,
     useValue: xsrfInterceptorFn,
     multi: true
-  }, {
-    provide: XSRF_ENABLED,
-    useValue: true
-  }, {
-    provide: HttpXsrfTokenExtractor,
-    useClass: HttpXsrfCookieExtractor
   }];
   for (const feature of features) {
     providers.push(...feature.ɵproviders);
   }
   return makeEnvironmentProviders(providers);
 }
-var LEGACY_INTERCEPTOR_FN = new InjectionToken(ngDevMode ? "LEGACY_INTERCEPTOR_FN" : "");
+var LEGACY_INTERCEPTOR_FN = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "LEGACY_INTERCEPTOR_FN" : "");
 function withInterceptorsFromDi() {
   return makeHttpFeature(HttpFeatureKind.LegacyInterceptors, [{
     provide: LEGACY_INTERCEPTOR_FN,
@@ -8472,23 +7476,12 @@ function withJsonpSupport() {
   }]);
 }
 var HttpClientXsrfModule = class _HttpClientXsrfModule {
-  /**
-   * Disable the default XSRF protection.
-   */
   static disable() {
     return {
       ngModule: _HttpClientXsrfModule,
       providers: [withNoXsrfProtection().ɵproviders]
     };
   }
-  /**
-   * Configure XSRF protection.
-   * @param options An object that can specify either or both
-   * cookie name or header name.
-   * - Cookie name default is `XSRF-TOKEN`.
-   * - Header name default is `X-XSRF-TOKEN`.
-   *
-   */
   static withOptions(options = {}) {
     return {
       ngModule: _HttpClientXsrfModule,
@@ -8554,10 +7547,6 @@ var HttpClientModule = class _HttpClientModule {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpClientModule, [{
     type: NgModule,
     args: [{
-      /**
-       * Configures the dependency injector where it is imported
-       * with supporting services for HTTP communications.
-       */
       providers: [provideHttpClient(withInterceptorsFromDi())]
     }]
   }], null, null);
@@ -8596,7 +7585,7 @@ function makeHttpResourceFn(responseType) {
       assertInInjectionContext(httpResource2);
     }
     const injector = options?.injector ?? inject(Injector);
-    return new HttpResourceImpl(injector, () => normalizeRequest(request, responseType), options?.defaultValue, options?.parse, options?.equal);
+    return new HttpResourceImpl(injector, () => normalizeRequest(request, responseType), options?.defaultValue, options?.debugName, options?.parse, options?.equal);
   };
 }
 function normalizeRequest(request, responseType) {
@@ -8604,10 +7593,14 @@ function normalizeRequest(request, responseType) {
   if (unwrappedRequest === void 0) {
     return void 0;
   } else if (typeof unwrappedRequest === "string") {
-    unwrappedRequest = { url: unwrappedRequest };
+    unwrappedRequest = {
+      url: unwrappedRequest
+    };
   }
   const headers = unwrappedRequest.headers instanceof HttpHeaders ? unwrappedRequest.headers : new HttpHeaders(unwrappedRequest.headers);
-  const params = unwrappedRequest.params instanceof HttpParams ? unwrappedRequest.params : new HttpParams({ fromObject: unwrappedRequest.params });
+  const params = unwrappedRequest.params instanceof HttpParams ? unwrappedRequest.params : new HttpParams({
+    fromObject: unwrappedRequest.params
+  });
   return new HttpRequest(unwrappedRequest.method ?? "GET", unwrappedRequest.url, unwrappedRequest.body ?? null, {
     headers,
     params,
@@ -8623,45 +7616,49 @@ function normalizeRequest(request, responseType) {
     transferCache: unwrappedRequest.transferCache,
     credentials: unwrappedRequest.credentials,
     referrer: unwrappedRequest.referrer,
+    referrerPolicy: unwrappedRequest.referrerPolicy,
     integrity: unwrappedRequest.integrity,
     timeout: unwrappedRequest.timeout
   });
 }
 var HttpResourceImpl = class extends ResourceImpl {
   client;
-  _headers = linkedSignal(...ngDevMode ? [{
-    debugName: "_headers",
+  _headers = linkedSignal(__spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "_headers"
+  } : {}), {
     source: this.extRequest,
     computation: () => void 0
-  }] : [{
+  }));
+  _progress = linkedSignal(__spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "_progress"
+  } : {}), {
     source: this.extRequest,
     computation: () => void 0
-  }]);
-  _progress = linkedSignal(...ngDevMode ? [{
-    debugName: "_progress",
+  }));
+  _statusCode = linkedSignal(__spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "_statusCode"
+  } : {}), {
     source: this.extRequest,
     computation: () => void 0
-  }] : [{
-    source: this.extRequest,
-    computation: () => void 0
-  }]);
-  _statusCode = linkedSignal(...ngDevMode ? [{
-    debugName: "_statusCode",
-    source: this.extRequest,
-    computation: () => void 0
-  }] : [{
-    source: this.extRequest,
-    computation: () => void 0
-  }]);
-  headers = computed(() => this.status() === "resolved" || this.status() === "error" ? this._headers() : void 0, ...ngDevMode ? [{ debugName: "headers" }] : []);
+  }));
+  headers = computed(() => this.status() === "resolved" || this.status() === "error" ? this._headers() : void 0, ...ngDevMode ? [{
+    debugName: "headers"
+  }] : []);
   progress = this._progress.asReadonly();
   statusCode = this._statusCode.asReadonly();
-  constructor(injector, request, defaultValue, parse, equal) {
-    super(request, ({ params: request2, abortSignal }) => {
+  constructor(injector, request, defaultValue, debugName, parse, equal) {
+    super(request, ({
+      params: request2,
+      abortSignal
+    }) => {
       let sub;
       const onAbort = () => sub.unsubscribe();
       abortSignal.addEventListener("abort", onAbort);
-      const stream = signal({ value: void 0 }, ...ngDevMode ? [{ debugName: "stream" }] : []);
+      const stream = signal({
+        value: void 0
+      }, ...ngDevMode ? [{
+        debugName: "stream"
+      }] : []);
       let resolve;
       const promise = new Promise((r) => resolve = r);
       const send = (value) => {
@@ -8676,9 +7673,13 @@ var HttpResourceImpl = class extends ResourceImpl {
               this._headers.set(event.headers);
               this._statusCode.set(event.status);
               try {
-                send({ value: parse ? parse(event.body) : event.body });
+                send({
+                  value: parse ? parse(event.body) : event.body
+                });
               } catch (error) {
-                send({ error: encapsulateResourceError(error) });
+                send({
+                  error: encapsulateResourceError(error)
+                });
               }
               break;
             case HttpEventType.DownloadProgress:
@@ -8691,7 +7692,9 @@ var HttpResourceImpl = class extends ResourceImpl {
             this._headers.set(error.headers);
             this._statusCode.set(error.status);
           }
-          send({ error });
+          send({
+            error
+          });
           abortSignal.removeEventListener("abort", onAbort);
         },
         complete: () => {
@@ -8704,7 +7707,7 @@ var HttpResourceImpl = class extends ResourceImpl {
         }
       });
       return promise;
-    }, defaultValue, equal, injector);
+    }, defaultValue, equal, debugName, injector);
     this.client = injector.get(HttpClient);
   }
   set(value) {
@@ -8714,21 +7717,26 @@ var HttpResourceImpl = class extends ResourceImpl {
     this._statusCode.set(void 0);
   }
 };
-var HTTP_TRANSFER_CACHE_ORIGIN_MAP = new InjectionToken(ngDevMode ? "HTTP_TRANSFER_CACHE_ORIGIN_MAP" : "");
+var HTTP_TRANSFER_CACHE_ORIGIN_MAP = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "HTTP_TRANSFER_CACHE_ORIGIN_MAP" : "");
 var BODY = "b";
 var HEADERS = "h";
 var STATUS = "s";
 var STATUS_TEXT = "st";
 var REQ_URL = "u";
 var RESPONSE_TYPE = "rt";
-var CACHE_OPTIONS = new InjectionToken(ngDevMode ? "HTTP_TRANSFER_STATE_CACHE_OPTIONS" : "");
+var CACHE_OPTIONS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "HTTP_TRANSFER_STATE_CACHE_OPTIONS" : "");
 var ALLOWED_METHODS = ["GET", "HEAD"];
 function transferCacheInterceptorFn(req, next) {
-  const _a = inject(CACHE_OPTIONS), { isCacheActive } = _a, globalOptions = __objRest(_a, ["isCacheActive"]);
-  const { transferCache: requestOptions, method: requestMethod } = req;
-  if (!isCacheActive || requestOptions === false || // POST requests are allowed either globally or at request level
-  requestMethod === "POST" && !globalOptions.includePostRequests && !requestOptions || requestMethod !== "POST" && !ALLOWED_METHODS.includes(requestMethod) || // Do not cache request that require authorization when includeRequestsWithAuthHeaders is falsey
-  !globalOptions.includeRequestsWithAuthHeaders && hasAuthHeaders(req) || globalOptions.filter?.(req) === false) {
+  const _a = inject(CACHE_OPTIONS), {
+    isCacheActive
+  } = _a, globalOptions = __objRest(_a, [
+    "isCacheActive"
+  ]);
+  const {
+    transferCache: requestOptions,
+    method: requestMethod
+  } = req;
+  if (!isCacheActive || requestOptions === false || requestMethod === "POST" && !globalOptions.includePostRequests && !requestOptions || requestMethod !== "POST" && !ALLOWED_METHODS.includes(requestMethod) || !globalOptions.includeRequestsWithAuthHeaders && hasAuthHeaders(req) || globalOptions.filter?.(req) === false) {
     return next(req);
   }
   const transferState = inject(TransferState);
@@ -8746,7 +7754,14 @@ function transferCacheInterceptorFn(req, next) {
     headersToInclude = requestOptions.includeHeaders;
   }
   if (response) {
-    const { [BODY]: undecodedBody, [RESPONSE_TYPE]: responseType, [HEADERS]: httpHeaders, [STATUS]: status, [STATUS_TEXT]: statusText, [REQ_URL]: url } = response;
+    const {
+      [BODY]: undecodedBody,
+      [RESPONSE_TYPE]: responseType,
+      [HEADERS]: httpHeaders,
+      [STATUS]: status,
+      [STATUS_TEXT]: statusText,
+      [REQ_URL]: url
+    } = response;
     let body = undecodedBody;
     switch (responseType) {
       case "arraybuffer":
@@ -8792,7 +7807,11 @@ function sortAndConcatParams(params) {
   return [...params.keys()].sort().map((k) => `${k}=${params.getAll(k)}`).join("&");
 }
 function makeCacheKey(request, mappedRequestUrl) {
-  const { params, method, responseType } = request;
+  const {
+    params,
+    method,
+    responseType
+  } = request;
   const encodedParams = sortAndConcatParams(params);
   let serializedBody = request.serializeBody();
   if (serializedBody instanceof URLSearchParams) {
@@ -8813,33 +7832,31 @@ function generateHash(value) {
   return hash.toString();
 }
 function withHttpTransferCache(cacheOptions) {
-  return [
-    {
-      provide: CACHE_OPTIONS,
-      useFactory: () => {
-        performanceMarkFeature("NgHttpTransferCache");
-        return __spreadValues({ isCacheActive: true }, cacheOptions);
-      }
-    },
-    {
-      provide: HTTP_ROOT_INTERCEPTOR_FNS,
-      useValue: transferCacheInterceptorFn,
-      multi: true
-    },
-    {
-      provide: APP_BOOTSTRAP_LISTENER,
-      multi: true,
-      useFactory: () => {
-        const appRef = inject(ApplicationRef);
-        const cacheState = inject(CACHE_OPTIONS);
-        return () => {
-          appRef.whenStable().then(() => {
-            cacheState.isCacheActive = false;
-          });
-        };
-      }
+  return [{
+    provide: CACHE_OPTIONS,
+    useFactory: () => {
+      performanceMarkFeature("NgHttpTransferCache");
+      return __spreadValues({
+        isCacheActive: true
+      }, cacheOptions);
     }
-  ];
+  }, {
+    provide: HTTP_ROOT_INTERCEPTOR_FNS,
+    useValue: transferCacheInterceptorFn,
+    multi: true
+  }, {
+    provide: APP_BOOTSTRAP_LISTENER,
+    multi: true,
+    useFactory: () => {
+      const appRef = inject(ApplicationRef);
+      const cacheState = inject(CACHE_OPTIONS);
+      return () => {
+        appRef.whenStable().then(() => {
+          cacheState.isCacheActive = false;
+        });
+      };
+    }
+  }];
 }
 function appendMissingHeadersDetection(url, headers, headersToInclude) {
   const warningProduced = /* @__PURE__ */ new Set();
@@ -8871,28 +7888,10 @@ var Meta = class _Meta {
     this._doc = _doc;
     this._dom = getDOM();
   }
-  /**
-   * Retrieves or creates a specific `<meta>` tag element in the current HTML document.
-   * In searching for an existing tag, Angular attempts to match the `name` or `property` attribute
-   * values in the provided tag definition, and verifies that all other attribute values are equal.
-   * If an existing element is found, it is returned and is not modified in any way.
-   * @param tag The definition of a `<meta>` element to match or create.
-   * @param forceCreation True to create a new element without checking whether one already exists.
-   * @returns The existing element with the same attributes and values if found,
-   * the new element if no match is found, or `null` if the tag parameter is not defined.
-   */
   addTag(tag, forceCreation = false) {
     if (!tag) return null;
     return this._getOrCreateElement(tag, forceCreation);
   }
-  /**
-   * Retrieves or creates a set of `<meta>` tag elements in the current HTML document.
-   * In searching for an existing tag, Angular attempts to match the `name` or `property` attribute
-   * values in the provided tag definition, and verifies that all other attribute values are equal.
-   * @param tags An array of tag definitions to match or create.
-   * @param forceCreation True to create new elements without checking whether they already exist.
-   * @returns The matching elements if found, or the new elements.
-   */
   addTags(tags, forceCreation = false) {
     if (!tags) return [];
     return tags.reduce((result, tag) => {
@@ -8902,36 +7901,15 @@ var Meta = class _Meta {
       return result;
     }, []);
   }
-  /**
-   * Retrieves a `<meta>` tag element in the current HTML document.
-   * @param attrSelector The tag attribute and value to match against, in the format
-   * `"tag_attribute='value string'"`.
-   * @returns The matching element, if any.
-   */
   getTag(attrSelector) {
     if (!attrSelector) return null;
     return this._doc.querySelector(`meta[${attrSelector}]`) || null;
   }
-  /**
-   * Retrieves a set of `<meta>` tag elements in the current HTML document.
-   * @param attrSelector The tag attribute and value to match against, in the format
-   * `"tag_attribute='value string'"`.
-   * @returns The matching elements, if any.
-   */
   getTags(attrSelector) {
     if (!attrSelector) return [];
     const list = this._doc.querySelectorAll(`meta[${attrSelector}]`);
     return list ? [].slice.call(list) : [];
   }
-  /**
-   * Modifies an existing `<meta>` tag element in the current HTML document.
-   * @param tag The tag description with which to replace the existing tag content.
-   * @param selector A tag attribute and value to match against, to identify
-   * an existing tag. A string in the format `"tag_attribute=`value string`"`.
-   * If not supplied, matches a tag with the same `name` or `property` attribute value as the
-   * replacement tag.
-   * @return The modified element.
-   */
   updateTag(tag, selector) {
     if (!tag) return null;
     selector = selector || this._parseSelector(tag);
@@ -8941,18 +7919,9 @@ var Meta = class _Meta {
     }
     return this._getOrCreateElement(tag, true);
   }
-  /**
-   * Removes an existing `<meta>` tag element from the current HTML document.
-   * @param attrSelector A tag attribute and value to match against, to identify
-   * an existing tag. A string in the format `"tag_attribute=`value string`"`.
-   */
   removeTag(attrSelector) {
     this.removeTagElement(this.getTag(attrSelector));
   }
-  /**
-   * Removes an existing `<meta>` tag element from the current HTML document.
-   * @param meta The tag definition to match against to identify an existing tag.
-   */
   removeTagElement(meta) {
     if (meta) {
       this._dom.remove(meta);
@@ -9015,16 +7984,9 @@ var Title = class _Title {
   constructor(_doc) {
     this._doc = _doc;
   }
-  /**
-   * Get the title of the current HTML document.
-   */
   getTitle() {
     return this._doc.title;
   }
-  /**
-   * Set the title of the current HTML document.
-   * @param newTitle
-   */
   setTitle(newTitle) {
     this._doc.title = newTitle || "";
   }
@@ -9070,23 +8032,6 @@ var AngularProfiler = class {
   constructor(ref) {
     this.appRef = ref.injector.get(ApplicationRef);
   }
-  // tslint:disable:no-console
-  /**
-   * Exercises change detection in a loop and then prints the average amount of
-   * time in milliseconds how long a single round of change detection takes for
-   * the current state of the UI. It runs a minimum of 5 rounds for a minimum
-   * of 500 milliseconds.
-   *
-   * Optionally, a user may pass a `config` parameter containing a map of
-   * options. Supported options are:
-   *
-   * `record` (boolean) - causes the profiler to record a CPU profile while
-   * it exercises the change detector. Example:
-   *
-   * ```ts
-   * ng.profiler.timeChangeDetection({record: true})
-   * ```
-   */
   timeChangeDetection(config) {
     const record = config && config["record"];
     const profileName = "Change Detection";
@@ -9118,38 +8063,14 @@ function disableDebugTools() {
   exportNgVar(PROFILER_GLOBAL_NAME, null);
 }
 var By = class {
-  /**
-   * Match all nodes.
-   *
-   * @usageNotes
-   * ### Example
-   *
-   * {@example platform-browser/dom/debug/ts/by/by.ts region='by_all'}
-   */
   static all() {
     return () => true;
   }
-  /**
-   * Match elements by the given CSS selector.
-   *
-   * @usageNotes
-   * ### Example
-   *
-   * {@example platform-browser/dom/debug/ts/by/by.ts region='by_css'}
-   */
   static css(selector) {
     return (debugElement) => {
       return debugElement.nativeElement != null ? elementMatches(debugElement.nativeElement, selector) : false;
     };
   }
-  /**
-   * Match nodes that have the given directive present.
-   *
-   * @usageNotes
-   * ### Example
-   *
-   * {@example platform-browser/dom/debug/ts/by/by.ts region='by_directive'}
-   */
   static directive(type) {
     return (debugNode) => debugNode.providerTokens.indexOf(type) !== -1;
   }
@@ -9161,7 +8082,6 @@ function elementMatches(n, selector) {
   return false;
 }
 var EVENT_NAMES = {
-  // pan
   "pan": true,
   "panstart": true,
   "panmove": true,
@@ -9171,7 +8091,6 @@ var EVENT_NAMES = {
   "panright": true,
   "panup": true,
   "pandown": true,
-  // pinch
   "pinch": true,
   "pinchstart": true,
   "pinchmove": true,
@@ -9179,65 +8098,27 @@ var EVENT_NAMES = {
   "pinchcancel": true,
   "pinchin": true,
   "pinchout": true,
-  // press
   "press": true,
   "pressup": true,
-  // rotate
   "rotate": true,
   "rotatestart": true,
   "rotatemove": true,
   "rotateend": true,
   "rotatecancel": true,
-  // swipe
   "swipe": true,
   "swipeleft": true,
   "swiperight": true,
   "swipeup": true,
   "swipedown": true,
-  // tap
   "tap": true,
   "doubletap": true
 };
 var HAMMER_GESTURE_CONFIG = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "HammerGestureConfig" : "");
 var HAMMER_LOADER = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "HammerLoader" : "");
 var HammerGestureConfig = class _HammerGestureConfig {
-  /**
-   * A set of supported event names for gestures to be used in Angular.
-   * Angular supports all built-in recognizers, as listed in
-   * [HammerJS documentation](https://hammerjs.github.io/).
-   */
   events = [];
-  /**
-   * Maps gesture event names to a set of configuration options
-   * that specify overrides to the default values for specific properties.
-   *
-   * The key is a supported event name to be configured,
-   * and the options object contains a set of properties, with override values
-   * to be applied to the named recognizer event.
-   * For example, to disable recognition of the rotate event, specify
-   *  `{"rotate": {"enable": false}}`.
-   *
-   * Properties that are not present take the HammerJS default values.
-   * For information about which properties are supported for which events,
-   * and their allowed and default values, see
-   * [HammerJS documentation](https://hammerjs.github.io/).
-   *
-   */
   overrides = {};
-  /**
-   * Properties whose default values can be overridden for a given event.
-   * Different sets of properties apply to different events.
-   * For information about which properties are supported for which events,
-   * and their allowed and default values, see
-   * [HammerJS documentation](https://hammerjs.github.io/).
-   */
   options;
-  /**
-   * Creates a [HammerJS Manager](https://hammerjs.github.io/api/#hammermanager)
-   * and attaches it to a given HTML element.
-   * @param element The element that will recognize gestures.
-   * @returns A HammerJS event-manager object.
-   */
   buildHammer(element) {
     const mc = new Hammer(element, this.options);
     mc.get("pinch").set({
@@ -9450,47 +8331,27 @@ var DomSanitizerImpl = class _DomSanitizerImpl extends DomSanitizer {
       case SecurityContext.NONE:
         return value;
       case SecurityContext.HTML:
-        if (allowSanitizationBypassAndThrow(
-          value,
-          "HTML"
-          /* BypassType.Html */
-        )) {
+        if (allowSanitizationBypassAndThrow(value, "HTML")) {
           return unwrapSafeValue(value);
         }
         return _sanitizeHtml(this._doc, String(value)).toString();
       case SecurityContext.STYLE:
-        if (allowSanitizationBypassAndThrow(
-          value,
-          "Style"
-          /* BypassType.Style */
-        )) {
+        if (allowSanitizationBypassAndThrow(value, "Style")) {
           return unwrapSafeValue(value);
         }
         return value;
       case SecurityContext.SCRIPT:
-        if (allowSanitizationBypassAndThrow(
-          value,
-          "Script"
-          /* BypassType.Script */
-        )) {
+        if (allowSanitizationBypassAndThrow(value, "Script")) {
           return unwrapSafeValue(value);
         }
         throw new RuntimeError(5200, (typeof ngDevMode === "undefined" || ngDevMode) && "unsafe value used in a script context");
       case SecurityContext.URL:
-        if (allowSanitizationBypassAndThrow(
-          value,
-          "URL"
-          /* BypassType.Url */
-        )) {
+        if (allowSanitizationBypassAndThrow(value, "URL")) {
           return unwrapSafeValue(value);
         }
         return _sanitizeUrl(String(value));
       case SecurityContext.RESOURCE_URL:
-        if (allowSanitizationBypassAndThrow(
-          value,
-          "ResourceURL"
-          /* BypassType.ResourceUrl */
-        )) {
+        if (allowSanitizationBypassAndThrow(value, "ResourceURL")) {
           return unwrapSafeValue(value);
         }
         throw new RuntimeError(5201, (typeof ngDevMode === "undefined" || ngDevMode) && `unsafe value used in a resource URL context (see ${XSS_SECURITY_URL})`);
@@ -9565,21 +8426,6 @@ function withEventReplay2() {
 function withIncrementalHydration2() {
   return hydrationFeature(HydrationFeatureKind.IncrementalHydration, withIncrementalHydration());
 }
-function provideZoneJsCompatibilityDetector() {
-  return [{
-    provide: ENVIRONMENT_INITIALIZER,
-    useValue: () => {
-      const ngZone = inject(NgZone);
-      const isZoneless = inject(ZONELESS_ENABLED);
-      if (!isZoneless && ngZone.constructor !== NgZone) {
-        const console2 = inject(Console);
-        const message = formatRuntimeError(-5e3, "Angular detected that hydration was enabled for an application that uses a custom or a noop Zone.js implementation. This is not yet a fully supported configuration.");
-        console2.warn(message);
-      }
-    },
-    multi: true
-  }];
-}
 function provideEnabledBlockingInitialNavigationDetector() {
   return [{
     provide: ENVIRONMENT_INITIALIZER,
@@ -9612,17 +8458,21 @@ function provideClientHydration(...features) {
   if (typeof ngDevMode !== "undefined" && ngDevMode && featuresKind.has(HydrationFeatureKind.NoHttpTransferCache) && hasHttpTransferCacheOptions) {
     throw new RuntimeError(5001, "Configuration error: found both withHttpTransferCacheOptions() and withNoHttpTransferCache() in the same call to provideClientHydration(), which is a contradiction.");
   }
-  return makeEnvironmentProviders([typeof ngDevMode !== "undefined" && ngDevMode ? provideZoneJsCompatibilityDetector() : [], typeof ngDevMode !== "undefined" && ngDevMode ? provideEnabledBlockingInitialNavigationDetector() : [], withDomHydration(), featuresKind.has(HydrationFeatureKind.NoHttpTransferCache) || hasHttpTransferCacheOptions ? [] : withHttpTransferCache({}), providers]);
+  return makeEnvironmentProviders([typeof ngDevMode !== "undefined" && ngDevMode ? provideEnabledBlockingInitialNavigationDetector() : [], typeof ngDevMode !== "undefined" && ngDevMode ? provideStabilityDebugging() : [], withDomHydration(), featuresKind.has(HydrationFeatureKind.NoHttpTransferCache) || hasHttpTransferCacheOptions ? [] : withHttpTransferCache({}), providers]);
 }
-var VERSION2 = new Version("20.3.16");
+var VERSION2 = new Version("21.1.2");
 
 export {
   getDOM,
+  PlatformLocation,
   LOCATION_INITIALIZED,
   LocationStrategy,
   PathLocationStrategy,
   Location,
   HashLocationStrategy,
+  PRECOMMIT_HANDLER_SUPPORTED,
+  PlatformNavigation,
+  NavigationAdapterForLocation,
   ViewportScroller,
   EventManagerPlugin,
   DomEventsPlugin,
@@ -9660,22 +8510,4 @@ export {
   provideClientHydration,
   VERSION2 as VERSION
 };
-/*! Bundled license information:
-
-@angular/common/fesm2022/location.mjs:
-@angular/common/fesm2022/common_module.mjs:
-@angular/common/fesm2022/xhr.mjs:
-@angular/common/fesm2022/platform_navigation.mjs:
-@angular/common/fesm2022/common.mjs:
-@angular/platform-browser/fesm2022/dom_renderer.mjs:
-@angular/platform-browser/fesm2022/browser.mjs:
-@angular/common/fesm2022/module.mjs:
-@angular/common/fesm2022/http.mjs:
-@angular/platform-browser/fesm2022/platform-browser.mjs:
-  (**
-   * @license Angular v20.3.16
-   * (c) 2010-2025 Google LLC. https://angular.dev/
-   * License: MIT
-   *)
-*/
-//# sourceMappingURL=chunk-3TG5GA2D.js.map
+//# sourceMappingURL=chunk-BUEKJGQI.js.map

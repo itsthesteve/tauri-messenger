@@ -101,7 +101,7 @@ function addPluginListener(plugin, event, cb) {
         handler
       });
       return new PluginListener(plugin, event, handler.id);
-    } catch {
+    } catch (e) {
       yield invoke(`plugin:${plugin}|registerListener`, { event, handler });
       return new PluginListener(plugin, event, handler.id);
     }
