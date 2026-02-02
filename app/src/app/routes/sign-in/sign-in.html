@@ -1,7 +1,8 @@
 <aim-xp-window>
   <aim-xp-title-bar
-    [help]="true"
+    [showHelp]="true"
     [minimize]="false"
+    (help)="showDebug()"
     windowTitle="AIM - Sign on"
   ></aim-xp-title-bar>
   <aim-square-hero></aim-square-hero>

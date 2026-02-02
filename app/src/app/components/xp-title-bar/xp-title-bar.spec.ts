@@ -63,10 +63,14 @@ describe("XpTitleBar", () => {
   });
 
   it("should show/hide control buttons based on the input", async () => {
-    const changeInput = (name: string, value: boolean) => {
+    const changeInput = (
+      name: string,
+      value: boolean,
+      selector: string = "",
+    ) => {
       fixture.componentRef.setInput(name, value);
       fixture.detectChanges();
-      return getByAria(name);
+      return getByAria(selector || name);
     };
 
     expect(changeInput("minimize", false)).toBeFalsy();
@@ -75,8 +79,8 @@ describe("XpTitleBar", () => {
     expect(changeInput("maximize", false)).toBeFalsy();
     expect(changeInput("maximize", true)).toBeTruthy();
 
-    expect(changeInput("help", false)).toBeFalsy();
-    expect(changeInput("help", true)).toBeTruthy();
+    expect(changeInput("showHelp", false, "help")).toBeFalsy();
+    expect(changeInput("showHelp", true, "help")).toBeTruthy();
   });
 
   it("should show the restore button if maximized", () => {

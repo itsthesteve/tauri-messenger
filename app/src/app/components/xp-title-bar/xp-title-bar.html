@@ -10,8 +10,8 @@
     <button aria-label="Restore" (click)="windowService.restore()"></button>
     } @else { @if (maximize()) {
     <button aria-label="Maximize" (click)="windowService.maximize()"></button>
-    } } @if (help()) {
-    <button aria-label="Help" (click)="showHelp()"></button>
+    } } @if (showHelp()) {
+    <button aria-label="Help" (click)="help.emit()"></button>
     }
     <button aria-label="Close" (click)="onClose()"></button>
   </div>

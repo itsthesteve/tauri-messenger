@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, isDevMode } from "@angular/core";
 import {
   FormControl,
   FormGroup,
@@ -53,4 +53,10 @@ export class SignIn {
     autoLogin: new FormControl(true),
     useDialup: new FormControl(true),
   });
+
+  showDebug() {
+    if (!isDevMode()) return;
+
+    console.log("showing debug");
+  }
 }
