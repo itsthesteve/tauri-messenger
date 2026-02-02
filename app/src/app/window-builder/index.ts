@@ -1,8 +1,9 @@
 import { Webview } from "@tauri-apps/api/webview";
 import { Window as TauriWindow, WindowOptions } from "@tauri-apps/api/window";
 
+// Allow all the properties of Tauri's WindowOptions but enfore width and height
 type AppWindowOptions = Partial<WindowOptions> &
-  Pick<WindowOptions, "width" | "height">;
+  Required<{ width: number; height: number }>;
 
 const CORE_WINDOW_OPTIONS: Partial<WindowOptions> = {
   /* The component sets visibility when ready to render to prevent flashbang */
@@ -18,15 +19,10 @@ export class WindowBuilder {
   constructor(
     private tauriLabel: string,
     private url: string,
-    private buildOptions: AppWindowOptions = {},
+    private buildOptions: AppWindowOptions = { width: 200, height: 200 },
   ) {}
 
   build(): Promise<TauriWindow> {
-    const { width, height } = this.buildOptions;
-    if (!width || !height) {
-      throw new Error("Width and height must be specified");
-    }
-
     const win = new TauriWindow(this.tauriLabel, {
       ...CORE_WINDOW_OPTIONS,
       ...this.buildOptions,
@@ -38,8 +34,8 @@ export class WindowBuilder {
           url: this.url,
           x: 0,
           y: 0,
-          width: this.buildOptions.width!,
-          height: this.buildOptions.height!,
+          width: this.buildOptions.width,
+          height: this.buildOptions.height,
           acceptFirstMouse: true,
         });
 
