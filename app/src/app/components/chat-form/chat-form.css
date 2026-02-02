@@ -1,0 +1,29 @@
+@reference "../../../styles.css";
+
+:host {
+  display: contents;
+}
+
+#custom-toolbar {
+  @apply my-2 p-0;
+  border: 2px solid #ccc;
+  border-style: groove;
+
+  button {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid red;
+    aspect-ratio: 1;
+    width: 24px;
+  }
+}
+
+@layer overrides {
+  [role="textbox"] {
+    resize: none;
+    overflow: auto;
+  }
+}

@@ -1,0 +1,20 @@
+#cdk-viewport {
+  border: 2px solid #ccc;
+  border-style: inset;
+}
+
+#cdk-viewport {
+  height: 180px;
+  overflow-y: scroll;
+  font-family: "Pixelated MS Sans Serif";
+}
+
+.chat-entry {
+  strong {
+    color: red;
+  }
+}
+
+.isMine strong {
+  color: blue;
+}

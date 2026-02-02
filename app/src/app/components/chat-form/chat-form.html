@@ -1,0 +1,18 @@
+<div class="grid grid-rows-[auto_1fr]">
+  <div class="py-4 flex" id="custom-toolbar">
+    <fieldset>
+      <button type="button">B</button>
+    </fieldset>
+    <fieldset>
+      <button type="button">B</button>
+    </fieldset>
+  </div>
+  <div
+    role="textbox"
+    autocorrect="off"
+    spellcheck="false"
+    #quill
+    class="h-full"
+    (keydown)="checkKeyPress($event)"
+  ></div>
+</div>
