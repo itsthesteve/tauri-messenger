@@ -1,0 +1,18 @@
+<nav class="title-bar" data-tauri-drag-region>
+  <h1 class="title-bar-text cursor-default" data-tauri-drag-region>
+    {{ windowTitle() }}
+  </h1>
+  <div class="title-bar-controls">
+    <!-- Icky -->
+    @if (minimize()) {
+    <button aria-label="Minimize" (click)="windowService.minimize()"></button>
+    } @if (windowService.viewState == 'maximized') {
+    <button aria-label="Restore" (click)="windowService.restore()"></button>
+    } @else { @if (maximize()) {
+    <button aria-label="Maximize" (click)="windowService.maximize()"></button>
+    } } @if (help()) {
+    <button aria-label="Help" (click)="showHelp()"></button>
+    }
+    <button aria-label="Close" (click)="onClose()"></button>
+  </div>
+</nav>
