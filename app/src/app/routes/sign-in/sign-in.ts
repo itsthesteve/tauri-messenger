@@ -5,8 +5,20 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
+import { signalState } from "@ngrx/signals";
 import { XpTitleBar } from "../../components/xp-title-bar/xp-title-bar";
 import { XpWindow } from "../../components/xp-window/xp-window";
+
+type FormError = {
+  key: string;
+  reason: string;
+};
+
+type SignInState = {
+  profiles: string[];
+  selectedProfile: string | null;
+  errors: FormError[];
+};
 
 @Component({
   selector: "aim-sign-in",
@@ -18,6 +30,12 @@ import { XpWindow } from "../../components/xp-window/xp-window";
   },
 })
 export class SignIn {
+  signInState = signalState<SignInState>({
+    profiles: [],
+    selectedProfile: null,
+    errors: [],
+  });
+
   form = new FormGroup({
     screenName: new FormControl("", [
       Validators.required,
