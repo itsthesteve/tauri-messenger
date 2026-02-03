@@ -1,7 +1,7 @@
-import { Component, inject, OnInit } from "@angular/core";
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { Component } from "@angular/core";
 import { XpTitleBar, XpWindow } from "../../components";
-import { WindowService } from "../../services/window/window-service";
+import { WindowBuilder } from "../../util";
+import { RootBase } from "../root/root";
 
 @Component({
   selector: "aim-debug",
@@ -12,11 +12,11 @@ import { WindowService } from "../../services/window/window-service";
     class: "contents",
   },
 })
-export class Debug implements OnInit {
-  protected windowService = inject(WindowService);
-
-  ngOnInit(): void {
-    // TODO: Figure out a good way to apply this to all windows
-    getCurrentWindow().show().catch(console.warn);
+export class Debug extends RootBase {
+  openChatWindow() {
+    WindowBuilder.build("chatWindow", "/chat", {
+      width: 700,
+      height: 500,
+    }).catch(console.warn);
   }
 }

@@ -14,6 +14,7 @@ import { BehaviorSubject, interval } from "rxjs";
 import { XpTitleBar, XpWindow } from "../../components";
 import { ChatForm } from "../../components/chat-form/chat-form";
 import { randLipsum } from "../../util";
+import { RootBase } from "../root/root";
 
 @Component({
   selector: "aim-chat-window",
@@ -28,8 +29,11 @@ import { randLipsum } from "../../util";
   templateUrl: "./chat.html",
   styleUrl: "./chat.css",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "contents",
+  },
 })
-export class ChatWindow implements AfterViewInit {
+export class ChatWindow extends RootBase implements AfterViewInit {
   private viewport = viewChild(CdkVirtualScrollViewport);
 
   itemsSrc$ = new BehaviorSubject<any[]>([]);
