@@ -8,7 +8,6 @@
  * show, call the "show()" method for it's current window.
  */
 import { Component, inject, OnInit } from "@angular/core";
-import { getCurrentWindow } from "@tauri-apps/api/window";
 import { WindowService } from "../../services/window/window-service";
 
 @Component({
@@ -21,7 +20,7 @@ export class RootBase implements OnInit {
   private windowService = inject(WindowService);
 
   ngOnInit(): void {
-    getCurrentWindow().show().catch(console.warn);
+    this.windowService.show().catch(console.warn);
   }
 
   protected closeWindow() {
