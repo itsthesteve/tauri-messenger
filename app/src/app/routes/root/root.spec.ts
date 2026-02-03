@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { RootBase } from "./root";
+import { WindowService } from "../../services/window/window-service";
 
 describe("RootBase", () => {
   let component: RootBase;
@@ -9,6 +10,7 @@ describe("RootBase", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RootBase],
+      providers: [WindowService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RootBase);

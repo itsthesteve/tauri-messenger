@@ -1,23 +1,15 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { Debug } from "./debug";
 import { WindowService } from "../../services/window/window-service";
-import { Mocked } from "vitest";
+import { Debug } from "./debug";
 
 describe("Debug", () => {
   let component: Debug;
   let fixture: ComponentFixture<Debug>;
 
   beforeEach(async () => {
-    const spy: Mocked<Partial<WindowService>> = { close: vi.fn() };
-
     await TestBed.configureTestingModule({
-      providers: [
-        {
-          provide: WindowService,
-          useValue: spy,
-        },
-      ],
+      providers: [WindowService],
       imports: [Debug],
     }).compileComponents();
 

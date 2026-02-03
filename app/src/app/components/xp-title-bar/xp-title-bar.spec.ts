@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { XpTitleBar } from "./xp-title-bar";
 import { WindowService } from "../../services/window/window-service";
+import { XpTitleBar } from "./xp-title-bar";
 import { Mocked } from "vitest";
 
 describe("XpTitleBar", () => {
@@ -11,6 +11,12 @@ describe("XpTitleBar", () => {
   let el: HTMLElement;
   let titleEl: HTMLHeadingElement;
   let windowService: WindowService;
+  const spy: Mocked<Partial<WindowService>> = {
+    close: vi.fn().mockResolvedValue(true),
+    minimize: vi.fn().mockResolvedValue(true),
+    maximize: vi.fn().mockResolvedValue(true),
+    restore: vi.fn().mockResolvedValue(true),
+  };
 
   const ucFirst = (str: string): string => {
     const first = str.charAt(0);
@@ -22,20 +28,12 @@ describe("XpTitleBar", () => {
   };
 
   beforeEach(async () => {
-    const windowSpy: Mocked<WindowService> = {
-      viewState: "",
-      close: vi.fn(),
-      minimize: vi.fn(),
-      maximize: vi.fn(),
-      restore: vi.fn(),
-    };
-
     await TestBed.configureTestingModule({
       imports: [XpTitleBar],
       providers: [
         {
           provide: WindowService,
-          useValue: windowSpy,
+          useValue: spy,
         },
       ],
     }).compileComponents();
