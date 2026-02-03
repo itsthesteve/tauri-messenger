@@ -15,6 +15,7 @@ import {
 } from "../../components";
 import { WindowBuilder } from "../../util";
 import { SignInState } from "./types";
+import { RootBase } from "../root/root";
 
 @Component({
   selector: "aim-sign-in",
@@ -32,7 +33,7 @@ import { SignInState } from "./types";
     class: "contents",
   },
 })
-export class SignIn {
+export class SignIn extends RootBase {
   signInState = signalState<SignInState>({
     profiles: [],
     selectedProfile: null,
@@ -59,11 +60,9 @@ export class SignIn {
     if (!isDevMode())
       return console.warn("Cannot open debug outside of dev mode");
 
-    new WindowBuilder("debugViewer", "/debug", {
-      width: 500,
-      height: 300,
-    })
-      .build()
-      .catch(console.warn);
+    WindowBuilder.build("debugViewer", "/debug", {
+      width: 350,
+      height: 200,
+    }).catch(console.warn);
   }
 }

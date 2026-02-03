@@ -13,8 +13,8 @@ export class WindowService {
   // TODO: Stubbed to prevent errors in consumer components
   public viewState = "";
 
-  close() {
-    getCurrentWindow().close().catch(console.warn);
+  async close() {
+    return await getCurrentWindow().close();
   }
 
   minimize() {}

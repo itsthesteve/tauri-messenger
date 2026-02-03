@@ -1,7 +1,9 @@
 <aim-xp-window>
   <aim-xp-title-bar
     windowTitle="Debug viewer"
-    (close)="windowService.close()"
+    (close)="closeWindow()"
   ></aim-xp-title-bar>
-  <div class="min-w-full">OK</div>
+  <div class="flex flex-wrap gap-2">
+    <button (click)="openChatWindow()">Open chat window</button>
+  </div>
 </aim-xp-window>
