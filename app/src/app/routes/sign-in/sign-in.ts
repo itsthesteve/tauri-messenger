@@ -33,11 +33,6 @@ import { SignInState } from "./types";
   },
 })
 export class SignIn {
-  private chatWindow = new WindowBuilder("debugViewer", "/debug", {
-    width: 500,
-    height: 300,
-  });
-
   signInState = signalState<SignInState>({
     profiles: [],
     selectedProfile: null,
@@ -64,6 +59,11 @@ export class SignIn {
     if (!isDevMode())
       return console.warn("Cannot open debug outside of dev mode");
 
-    this.chatWindow.build().catch(console.warn);
+    new WindowBuilder("debugViewer", "/debug", {
+      width: 500,
+      height: 300,
+    })
+      .build()
+      .catch(console.warn);
   }
 }
