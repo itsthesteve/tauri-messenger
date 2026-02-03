@@ -1,14 +1,16 @@
 import { vi } from "vitest";
 
-vi.mock("@tauri-apps/api/window", () => ({
-  getCurrentWindow: () => ({
-    show: vi.fn().mockResolvedValue(undefined),
-    close: vi.fn().mockResolvedValue(undefined),
-    hide: vi.fn().mockResolvedValue(undefined),
-    maximize: vi.fn().mockResolvedValue(undefined),
-    minimize: vi.fn().mockResolvedValue(undefined),
-    unmaximize: vi.fn().mockResolvedValue(undefined),
-    toggleMaximize: vi.fn().mockResolvedValue(undefined),
-    setFocus: vi.fn().mockResolvedValue(undefined),
-  }),
-}));
+const promiseFn = vi.fn().mockResolvedValue(true);
+
+// Functions names to be mocked with a basic resolve function
+const fnKeys = ["show", "close", "hide", "maximize", "minimize", "setFocus"];
+
+vi.mock("@tauri-apps/api/window", () => {
+  let r = {};
+  for (let k of fnKeys) {
+    Object.assign(r, { [k]: promiseFn });
+  }
+  return {
+    getCurrentWindow: () => r,
+  };
+});
