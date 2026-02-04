@@ -10,8 +10,8 @@ import { WindowService } from "../../services/window/window-service";
 })
 export class XpTitleBar {
   windowTitle = input<string>("AIM");
-  minimize = input<boolean>(true);
-  maximize = input<boolean>(false);
+  showMinimize = input<boolean>(true);
+  showMaximize = input<boolean>(false);
   showHelp = input<boolean>(false);
 
   close = output();
