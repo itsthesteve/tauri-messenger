@@ -1,0 +1,18 @@
+fieldset {
+  border: none;
+}
+
+footer {
+  border: 2px solid #ccc;
+  border-style: groove;
+
+  fieldset:first-child {
+    border-right: inherit;
+    border-right-style: inherit;
+  }
+
+  fieldset:last-child {
+    border-left: inherit;
+    border-left-style: inherit;
+  }
+}

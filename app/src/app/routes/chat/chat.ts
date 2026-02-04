@@ -12,6 +12,7 @@ import {
 } from "@angular/core";
 import { BehaviorSubject, interval } from "rxjs";
 import { XpTitleBar, XpWindow } from "../../components";
+import { ChatFooter } from "../../components/chat-footer/chat-footer";
 import { ChatForm } from "../../components/chat-form/chat-form";
 import { randLipsum } from "../../util";
 import { RootBase } from "../root/root";
@@ -25,6 +26,7 @@ import { RootBase } from "../root/root";
     XpTitleBar,
     AsyncPipe,
     ChatForm,
+    ChatFooter,
   ],
   templateUrl: "./chat.html",
   styleUrl: "./chat.css",

@@ -17,7 +17,7 @@ import { WindowService } from "../../services/window/window-service";
   styles: ``,
 })
 export class RootBase implements OnInit {
-  private windowService = inject(WindowService);
+  protected windowService = inject(WindowService);
 
   ngOnInit(): void {
     this.windowService.show().catch(console.warn);

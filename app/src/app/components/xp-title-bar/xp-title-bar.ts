@@ -1,9 +1,10 @@
+import { AsyncPipe } from "@angular/common";
 import { Component, inject, input, output } from "@angular/core";
 import { WindowService } from "../../services/window/window-service";
 
 @Component({
   selector: "aim-xp-title-bar",
-  imports: [],
+  imports: [AsyncPipe],
   templateUrl: "./xp-title-bar.html",
   styleUrl: "./xp-title-bar.css",
 })
