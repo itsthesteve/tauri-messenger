@@ -44,7 +44,10 @@ export class WindowBuilder {
           acceptFirstMouse: true,
         });
 
-        wv.once("tauri://created", () => resolve(win));
+        wv.once("tauri://created", () =>
+          wv.setAutoResize(true).then(() => resolve(win)),
+        );
+
         wv.once("tauri://error", (err) => {
           console.warn("Error creating webview", err);
           reject(err);

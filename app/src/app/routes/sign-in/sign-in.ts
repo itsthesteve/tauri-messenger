@@ -63,6 +63,8 @@ export class SignIn extends RootBase {
     WindowBuilder.build("debugViewer", "/debug", {
       width: 350,
       height: 200,
+      x: 0,
+      y: 0,
     }).catch(console.warn);
   }
 }

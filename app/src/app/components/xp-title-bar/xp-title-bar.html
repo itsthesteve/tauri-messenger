@@ -6,7 +6,7 @@
     <!-- Icky -->
     @if (minimize()) {
     <button aria-label="Minimize" (click)="windowService.minimize()"></button>
-    } @if (windowService.viewState == 'maximized') {
+    } @if (windowService.isMaximized() | async) {
     <button aria-label="Restore" (click)="windowService.restore()"></button>
     } @else { @if (maximize()) {
     <button aria-label="Maximize" (click)="windowService.maximize()"></button>
