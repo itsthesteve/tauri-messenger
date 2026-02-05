@@ -17,6 +17,8 @@ const CORE_WINDOW_OPTIONS: Partial<WindowOptions> = {
   visible: false,
   /* No default system window trim */
   decorations: false,
+  /* Explicitly no resizing */
+  resizable: false,
 };
 
 /**
