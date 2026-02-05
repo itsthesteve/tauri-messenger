@@ -57,8 +57,9 @@ export class SignIn extends RootBase {
   });
 
   showDebug() {
-    if (!isDevMode())
-      return console.warn("Cannot open debug outside of dev mode");
+    // TODO: Figure a way to do this without angular isDevMode, as a debug build is helpful
+    // if (!isDevMode())
+    //   return console.warn("Cannot open debug outside of dev mode");
 
     WindowBuilder.build("debugViewer", "/debug", {
       width: 350,
