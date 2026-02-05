@@ -4,11 +4,11 @@
   </h1>
   <div class="title-bar-controls">
     <!-- Icky -->
-    @if (minimize()) {
+    @if (showMinimize()) {
     <button aria-label="Minimize" (click)="windowService.minimize()"></button>
     } @if (windowService.viewState == 'maximized') {
     <button aria-label="Restore" (click)="windowService.restore()"></button>
-    } @else { @if (maximize()) {
+    } @else { @if (showMaximize()) {
     <button aria-label="Maximize" (click)="windowService.maximize()"></button>
     } } @if (showHelp()) {
     <button aria-label="Help" (click)="help.emit()"></button>
