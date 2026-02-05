@@ -6,11 +6,11 @@
   "permissions": [
     "core:default",
     "opener:default",
+    "process:default",
     "core:window:allow-start-dragging",
     "core:window:allow-create",
     "core:webview:allow-create-webview",
     "core:window:allow-show",
-    "core:window:allow-close",
-    "process:default"
+    "core:window:allow-close"
   ]
 }

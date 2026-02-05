@@ -16,6 +16,7 @@
         "title": "main",
         "width": 220,
         "height": 400,
+        "resizable": false,
         "decorations": false,
         "acceptFirstMouse": true,
         "backgroundColor": "#ddd"
