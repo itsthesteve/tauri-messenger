@@ -2,6 +2,7 @@
   <aim-xp-title-bar
     [showHelp]="true"
     [showMinimize]="false"
+    (close)="windowService.close(true)"
     (help)="showDebug()"
     windowTitle="AIM - Sign on"
   ></aim-xp-title-bar>
