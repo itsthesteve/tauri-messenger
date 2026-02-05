@@ -6,7 +6,7 @@
   "permissions": [
     "core:default",
     "opener:default",
-    "process:default",
+    "process:allow-exit",
     "core:window:allow-start-dragging",
     "core:window:allow-create",
     "core:webview:allow-create-webview",
