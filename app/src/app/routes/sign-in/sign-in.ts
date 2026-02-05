@@ -1,4 +1,4 @@
-import { Component, isDevMode } from "@angular/core";
+import { Component } from "@angular/core";
 import {
   FormControl,
   FormGroup,
@@ -14,8 +14,8 @@ import {
   XpWindow,
 } from "../../components";
 import { WindowBuilder } from "../../util";
-import { SignInState } from "./types";
 import { RootBase } from "../root/root";
+import { SignInState } from "./types";
 
 @Component({
   selector: "aim-sign-in",
