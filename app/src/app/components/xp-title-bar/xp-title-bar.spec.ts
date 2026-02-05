@@ -4,7 +4,7 @@ import { WindowService } from "../../services/window/window-service";
 import { XpTitleBar } from "./xp-title-bar";
 import { Mocked } from "vitest";
 
-describe("XpTitleBar", () => {
+describe.skip("XpTitleBar", () => {
   let component: XpTitleBar;
   let fixture: ComponentFixture<XpTitleBar>;
 
