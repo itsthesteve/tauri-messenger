@@ -16,10 +16,12 @@ import {
 import { WindowBuilder } from "../../util";
 import { RootBase } from "../root/root";
 import { SignInState } from "./types";
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: "aim-sign-in",
   imports: [
+    RouterLink,
     XpWindow,
     XpTitleBar,
     XpStatusBar,

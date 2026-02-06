@@ -1,0 +1,102 @@
+<aim-xp-window>
+  <aim-xp-title-bar
+    [showHelp]="true"
+    [showMinimize]="false"
+    windowTitle="Register name"
+    (close)="windowService.close()"
+  ></aim-xp-title-bar>
+  <aim-square-hero />
+  <form
+    [formGroup]="createForm"
+    (ngSubmit)="onSubmit()"
+    class="grow flex flex-col"
+  >
+    <div class="mb-1">
+      <label
+        for="screenName"
+        class="grid! grid-cols-[1fr_2fr] items-center! w-full gap-2"
+      >
+        <span>Name</span>
+        <input
+          placeholder="xXUsernameXx"
+          spellcheck="false"
+          autocomplete="no"
+          id="screenName"
+          type="text"
+          formControlName="screenName"
+          maxlength="16"
+        />
+      </label>
+    </div>
+    <div class="mb-1">
+      <label
+        for="confirmScreenName"
+        class="grid! grid-cols-[1fr_2fr] items-center! w-full gap-2"
+      >
+        <span>Confirm</span>
+        <input
+          placeholder="xXUsernameXx"
+          autocomplete="off"
+          spellcheck="false"
+          id="confirmScreenName"
+          type="text"
+          formControlName="confirmScreenName"
+          maxlength="16"
+        />
+      </label>
+    </div>
+
+    <div class="mt-4 mb-1">
+      <label
+        for="password"
+        class="grid! grid-cols-[1fr_2fr] items-center! w-full gap-2"
+      >
+        <span>Password</span>
+        <input
+          placeholder="******"
+          autocomplete="no"
+          type="password"
+          id="password"
+          formControlName="password"
+          maxlength="128"
+        />
+      </label>
+    </div>
+
+    <div class="mb-1">
+      <label
+        for="password"
+        class="grid! grid-cols-[1fr_2fr] items-center! w-full gap-2"
+      >
+        <span>Confirm</span>
+        <input
+          placeholder="******"
+          autocomplete="no"
+          type="password"
+          id="confirmPass"
+          formControlName="confirmPassword"
+          maxlength="128"
+        />
+      </label>
+      @if (hasErrors()) {
+      <ul
+        class="bg-red-100 border border-red-400 p-2 px-3 my-1 text-xs font-bold"
+      >
+        @for (item of errors() | keyvalue; track item.key) {
+        <li>&middot; {{ item.value }}</li>
+        }
+      </ul>
+      }
+    </div>
+    <span class="grow">&nbsp;</span>
+
+    <footer class="text-center flex items-center justify-between">
+      <a routerLink="/">Back to sign in</a>
+      <button type="submit" [disabled]="createForm.invalid">Submit</button>
+    </footer>
+  </form>
+
+  <aim-status-bar [hideTopBorder]="true">
+    <small class="text-center">Version 0.0.1</small>
+  </aim-status-bar>
+</aim-xp-window>
