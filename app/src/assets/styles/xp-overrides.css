@@ -89,8 +89,8 @@ ul.tree-view {
   background-color: #fff;
 }
 
-input:is([type="password"], [type="text"]):is([disabled]) {
-  opacity: 0.75;
+:is([type="password"], [type="text"], button[disabled]):is([disabled]) {
+  opacity: 0.7;
   background: #ddd;
   pointer-events: none;
 }

@@ -31,6 +31,8 @@ const errors: Record<string, any> = {
 
 /**
  * The keys need to align to the form ID/form control names
+ * TODO: Since the angular form is validating lengths, should
+ * we do that here as well, or just keep the extra refinements?
  */
 export const ScreenNameSchema = z
   .object({

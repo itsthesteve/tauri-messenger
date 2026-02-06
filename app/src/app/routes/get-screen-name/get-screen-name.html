@@ -6,11 +6,7 @@
     (close)="windowService.close()"
   ></aim-xp-title-bar>
   <aim-square-hero />
-  <form
-    [formGroup]="createForm"
-    (ngSubmit)="onSubmit()"
-    class="grow flex flex-col"
-  >
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="grow flex flex-col">
     <div class="mb-1">
       <label
         for="screenName"
@@ -88,11 +84,11 @@
       </ul>
       }
     </div>
-    <span class="grow">&nbsp;</span>
+    <span class="grow"></span>
 
     <footer class="text-center flex items-center justify-between">
       <a routerLink="/">Back to sign in</a>
-      <button type="submit" [disabled]="createForm.invalid">Submit</button>
+      <button type="submit" [disabled]="form.invalid">Submit</button>
     </footer>
   </form>
 

@@ -6,7 +6,12 @@ import {
   inject,
   signal,
 } from "@angular/core";
-import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
 import { flattenError } from "zod";
 import {
@@ -15,7 +20,13 @@ import {
   XpTitleBar,
   XpWindow,
 } from "../../components";
-import { ScreenNameSchema } from "../../schemas/screen-name";
+import {
+  PASS_MAX_LEN,
+  PASS_MIN_LEN,
+  SCREEN_NAME_MAX_LEN,
+  SCREEN_NAME_MIN_LEN,
+  ScreenNameSchema,
+} from "../../schemas/screen-name";
 import { InvokeService } from "../../services/invoke-service";
 import { RootBase } from "../root/root";
 
@@ -47,16 +58,31 @@ export class GetScreenName extends RootBase {
     return Object.keys(this.errors()).length;
   });
 
-  // No ng validators as zod is taking care of it
-  protected createForm = new FormGroup({
-    screenName: new FormControl(""),
-    confirmScreenName: new FormControl(""),
-    password: new FormControl(""),
-    confirmPassword: new FormControl(""),
+  protected form = new FormGroup({
+    screenName: new FormControl("", [
+      Validators.required,
+      Validators.minLength(SCREEN_NAME_MIN_LEN),
+      Validators.maxLength(SCREEN_NAME_MAX_LEN),
+    ]),
+    confirmScreenName: new FormControl("", [
+      Validators.required,
+      Validators.minLength(SCREEN_NAME_MIN_LEN),
+      Validators.maxLength(SCREEN_NAME_MAX_LEN),
+    ]),
+    password: new FormControl("", [
+      Validators.required,
+      Validators.minLength(PASS_MIN_LEN),
+      Validators.maxLength(PASS_MAX_LEN),
+    ]),
+    confirmPassword: new FormControl("", [
+      Validators.required,
+      Validators.minLength(PASS_MIN_LEN),
+      Validators.maxLength(PASS_MAX_LEN),
+    ]),
   });
 
   async onSubmit() {
-    const result = ScreenNameSchema.safeParse(this.createForm.value);
+    const result = ScreenNameSchema.safeParse(this.form.value);
 
     if (result.error) {
       this.errors.set(flattenError(result.error).fieldErrors);
@@ -68,11 +94,12 @@ export class GetScreenName extends RootBase {
 
     try {
       const result = await this.invokeService.send("create_screen_name", {
-        screenName: this.createForm.get("screenName")!.value,
-        password: this.createForm.get("password")!.value,
+        screenName: this.form.get("screenName")!.value,
+        password: this.form.get("password")!.value,
       });
 
       // TODO: Better handling, ensure the result type is what is expected
+      // and some unexpected response won't skip this block
       if (result.status_code >= 300) {
         console.warn("Invocation returned with non OK status", result);
         throw result;
