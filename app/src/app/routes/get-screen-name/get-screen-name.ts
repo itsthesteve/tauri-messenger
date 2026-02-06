@@ -10,14 +10,14 @@ import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
 import { flattenError } from "zod";
 import {
-  XpStatusBar,
-  XpWindow,
-  XpTitleBar,
   SquareHero,
+  XpStatusBar,
+  XpTitleBar,
+  XpWindow,
 } from "../../components";
-import { RootBase } from "../root/root";
 import { ScreenNameSchema } from "../../schemas/screen-name";
 import { InvokeService } from "../../services/invoke-service";
+import { RootBase } from "../root/root";
 
 @Component({
   selector: "aim-get-screen-name",
