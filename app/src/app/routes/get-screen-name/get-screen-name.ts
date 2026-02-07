@@ -98,6 +98,8 @@ export class GetScreenName extends RootBase {
         password: this.form.get("password")!.value,
       });
 
+      console.log({ result });
+
       // TODO: Better handling, ensure the result type is what is expected
       // and some unexpected response won't skip this block
       if (result.status_code >= 300) {
@@ -105,9 +107,11 @@ export class GetScreenName extends RootBase {
         throw result;
       }
 
-      this.router.navigate([""], {
-        queryParams: { sn: result.body },
-      });
+      console.log(result);
+
+      // this.router.navigate([""], {
+      //   queryParams: { sn: result.body },
+      // });
     } catch (e) {
       // Should only happen when the go API server is down/not responding.
       // TODO: Have rust handle this
