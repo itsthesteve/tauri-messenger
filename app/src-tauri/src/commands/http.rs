@@ -3,7 +3,7 @@ use std::time::Duration;
 use tauri::http::{header, HeaderValue};
 use tauri_plugin_http::reqwest::{Client, ClientBuilder};
 
-pub fn get_http_client() -> Result<Client, std::string::String> {
+pub fn get_http_client() -> Result<Client, Box<dyn std::error::Error>> {
     let mut headers = header::HeaderMap::new();
     headers.insert("X-Aim", HeaderValue::from_static("0.1.0"));
     headers.insert(
@@ -21,7 +21,7 @@ pub fn get_http_client() -> Result<Client, std::string::String> {
             }
 
             format!("unknown error creating http client: {}", err)
-        });
+        })?;
 
-    http_client
+    Ok(http_client)
 }
