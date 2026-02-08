@@ -21,6 +21,7 @@ pub async fn create_screen_name(screen_name: &str, password: &str) -> Result<Api
         .json(&payload)
         .send()
         .await
+        // TODO: Remove ? and handle errors appropriately
         .map_err(|err| format!("Error sending to server: {:?}", err))?;
 
     println!("Request OK");
@@ -29,7 +30,7 @@ pub async fn create_screen_name(screen_name: &str, password: &str) -> Result<Api
     let status_code = res.status().as_u16();
 
     Ok(ApiResponse {
-        body: String::from("ok"),
+        body: String::from(""),
         status_code: status_code,
     })
 }

@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS screen_names (
   screen_name TEXT NOT NULL UNIQUE CHECK(length(screen_name) > 3),
   password TEXT NOT NULL,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  last_login TEXT DEFAULT CURRENT_TIMESTAMP,
+  last_login TEXT NULL,
   FOREIGN KEY(owner_id) REFERENCES users(id)
 ) STRICT;
 

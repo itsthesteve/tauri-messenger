@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+
+	"its.dev/aim/internal/users"
 )
 
 func handleHealth(log *slog.Logger) http.Handler {
@@ -13,7 +15,7 @@ func handleHealth(log *slog.Logger) http.Handler {
 	})
 }
 
-func handleCreateName(log *slog.Logger) http.Handler {
+func handleCreateName(log *slog.Logger, u *users.UserService) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		type createBody struct {
 			ScreenName string `json:"screenName"`
@@ -26,7 +28,14 @@ func handleCreateName(log *slog.Logger) http.Handler {
 			return
 		}
 
-		log.Info(TAG, "names:create", body)
-		encodeResponse(w, http.StatusOK, fmt.Sprintf("OK: %s\n", body.ScreenName))
+		// TODO: Hash
+		result, err := u.CreateNewName(r.Context(), body.ScreenName, body.Password)
+		if err != nil {
+			encodeResponse(w, http.StatusConflict, "unable to save screen name")
+			return
+		}
+
+		log.Info(TAG, "name:create", body)
+		encodeResponse(w, http.StatusOK, fmt.Sprintf("OK: %s\n", *result))
 	})
 }
