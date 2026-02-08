@@ -2,6 +2,7 @@ mod commands;
 mod security;
 
 use crate::commands::*;
+use crate::security::generate_keys;
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -19,6 +20,13 @@ pub fn run() {
                 "App directory: {:?}",
                 app_dir.to_str().ok_or("idk").unwrap()
             );
+
+            // Just a test to see if it works
+            let user_keys = generate_keys();
+            println!("Private {:?}", hex::encode(user_keys.public_bytes));
+            println!("Public {:?}", hex::encode(user_keys.private_bytes));
+
+            // Create the private/public keys here
             Ok(())
         })
         .run(tauri::generate_context!())

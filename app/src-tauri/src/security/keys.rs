@@ -1,6 +1,7 @@
 use ed25519_dalek::{SigningKey, VerifyingKey};
 use rand::rngs::OsRng;
 
+#[derive(Debug)]
 pub struct UserKeys {
     pub private_bytes: [u8; 32],
     pub public_bytes: [u8; 32],

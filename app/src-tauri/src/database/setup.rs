@@ -1,4 +1,6 @@
-pub fn setup_db(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+use tauri::AppHandle;
+
+pub fn setup_db(app: &mut AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let app_handle = app.handle();
     let app_data_dir = app_handle
         .path()
