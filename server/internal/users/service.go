@@ -29,11 +29,11 @@ func (u *UserService) CreateNewName(ctx context.Context, name, password string) 
 	}
 
 	// Screen name doesn't exist, continue saving it
-
-	query := `INSERT INTO screen_names 
-    (owner_id, screen_name, password, created_at)
-  VALUES
-    (?, ?, ?, ?);`
+	query := `INSERT INTO
+    screen_names
+      (owner_id, screen_name, password, created_at)
+    VALUES
+      (?, ?, ?, ?);`
 
 	hash, err := hashPassword(password)
 	if err != nil {
@@ -41,6 +41,7 @@ func (u *UserService) CreateNewName(ctx context.Context, name, password string) 
 	}
 
 	// TODO: The owner_id should not be hard coded
+	// It's fine for testing until the rest of the user flow is created (#25)
 	_, err = u.pool.Writer.Exec(query, 1, name, hash, time.Now())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create new screen name: %w", err)
