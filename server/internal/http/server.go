@@ -49,7 +49,7 @@ func Create(ctx context.Context, stopFn context.CancelFunc, log *slog.Logger) (*
 	appServer := &AppServer{
 		log:    log,
 		server: server,
-		users:  users.New(pool),
+		users:  users.New(pool, log),
 		redis:  redis,
 		stop:   stopFn,
 		wsUpgrader: websocket.Upgrader{

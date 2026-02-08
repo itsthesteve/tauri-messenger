@@ -19,4 +19,11 @@ export class Debug extends RootBase {
       height: 500,
     }).catch(console.warn);
   }
+
+  openRegistration() {
+    WindowBuilder.build("getScreenName", "/get-screen-name", {
+      width: 220,
+      height: 400,
+    });
+  }
 }
