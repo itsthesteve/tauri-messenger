@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log/slog"
 	"runtime"
@@ -10,6 +11,8 @@ import (
 	"github.com/alexedwards/argon2id"
 	database "its.dev/aim/internal/database"
 )
+
+const TAG string = "UserService"
 
 type UserService struct {
 	pool *database.DBPool
@@ -24,9 +27,13 @@ func New(pool *database.DBPool, slog *slog.Logger) *UserService {
 }
 
 func (u *UserService) CreateNewName(ctx context.Context, name, password string) (*string, error) {
+	u.log.Info(TAG, "createNewName:attempt", name)
 	if existsErr := u.checkScreenNameExists(ctx, name); existsErr != nil {
+		u.log.Error(TAG, "createNewName:failed", name)
 		return nil, existsErr
 	}
+
+	u.log.Info(TAG, "createNewName:inserting", name)
 
 	// Screen name doesn't exist, continue saving it
 	query := `INSERT INTO
@@ -37,6 +44,7 @@ func (u *UserService) CreateNewName(ctx context.Context, name, password string) 
 
 	hash, err := hashPassword(password)
 	if err != nil {
+		u.log.Error(TAG, "createNewName:failed", err.Error())
 		return nil, err
 	}
 
@@ -44,6 +52,7 @@ func (u *UserService) CreateNewName(ctx context.Context, name, password string) 
 	// It's fine for testing until the rest of the user flow is created (#25)
 	_, err = u.pool.Writer.Exec(query, 1, name, hash, time.Now())
 	if err != nil {
+		u.log.Error(TAG, "saveName:failed", err.Error())
 		return nil, fmt.Errorf("unable to create new screen name: %w", err)
 	}
 
@@ -52,18 +61,21 @@ func (u *UserService) CreateNewName(ctx context.Context, name, password string) 
 
 func (u *UserService) checkScreenNameExists(ctx context.Context, name string) error {
 	if name == "" {
+		u.log.Error(TAG, "checkNameExists", "fail:null")
 		return fmt.Errorf("cannot check screen name against null value")
 	}
 
-	query := "SELECT 1 WHERE screen_name = ?"
+	query := "SELECT 1 from screen_names WHERE screen_name = ?;"
 
 	var exists int
 	row := u.pool.Reader.QueryRowContext(ctx, query, name)
-	if err := row.Scan(&exists); err != nil {
+	err := row.Scan(&exists)
+
+	if err == sql.ErrNoRows {
+		return nil
+	} else {
 		return fmt.Errorf("screen name '%s' exists", name)
 	}
-
-	return nil
 }
 
 func hashPassword(password string) (*string, error) {
