@@ -28,7 +28,6 @@ func handleCreateName(log *slog.Logger, u *users.UserService) http.Handler {
 			return
 		}
 
-		// TODO: Hash
 		result, err := u.CreateNewName(r.Context(), body.ScreenName, body.Password)
 		if err != nil {
 			encodeResponse(w, http.StatusConflict, "unable to save screen name")
